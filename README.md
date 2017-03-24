@@ -61,7 +61,7 @@
 |`npm run build`  |根据`webpack.config.js`，build出一份生产环境的代码 |
 | `npm run dev`   | 根据`webpack.dev.config.js`，build出一份开发环境的代码 |
 | `npm run start` | 开启webpack-dev-server并自动打开浏览器，自动监测源码变动并实现LiveReload，**实际开发时使用此项** |
-| `npm run dll`   | 生成Dll文件，每次升级第三方库时都需要重新执行一遍 |
+
 
 ## 使用说明
 - 下载本项目所有依赖
@@ -72,13 +72,3 @@ npm install
 ```
 npm run start
 ```
-```flow
-st=>start: Start
-op=>operation: Your Operation
-cond=>condition: Yes or No?
-e=>end
-
-st->op->cond
-cond(yes)->e
-cond(no)->op
-```	
