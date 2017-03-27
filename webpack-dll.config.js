@@ -29,7 +29,9 @@ module.exports = {
       $: 'jquery',
       jQuery: 'jquery',
       'window.jQuery': 'jquery',
-      'window.$': 'jquery'
+      'window.$': 'jquery',
+      Backbone:'Backbone',
+      _:'underscore'
     }),
     new ExtractTextPlugin('[name].css'), // 打包css/less的时候会用到ExtractTextPlugin
     new webpack.optimize.UglifyJsPlugin({

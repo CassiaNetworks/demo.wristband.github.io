@@ -1,5 +1,6 @@
 var webpack = require('webpack');
 var pluginsConfig = require('./inherit/plugins.config.js');
+var CleanWebpackPlugin = require('clean-webpack-plugin');
 
 /* webpack1下，用了压缩插件会导致所有loader添加min配置，而autoprefixser也被定格到某个browers配置 */
 pluginsConfig.push(new webpack.optimize.UglifyJsPlugin({
@@ -20,5 +21,14 @@ pluginsConfig.push(new webpack.LoaderOptionsPlugin({
     eslint: require('./vendor/eslint.config.js')
   }
 }));
+//构建项目前清除build文件夹
+pluginsConfig.push(
+    new CleanWebpackPlugin(['build'], {
+      root: process.cwd(),
+      exclude: []
+    })
+)
+    
+  
 
 module.exports = pluginsConfig;

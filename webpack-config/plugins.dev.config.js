@@ -11,5 +11,6 @@ pluginsConfig.push(new webpack.LoaderOptionsPlugin({
     eslint: require('./vendor/eslint.config.js')   
   }
 }));
+pluginsConfig.push(new webpack.HotModuleReplacementPlugin());
 
 module.exports = pluginsConfig;

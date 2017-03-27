@@ -20,13 +20,13 @@ moduleConfig.rules.push({
   ])
 });
 
-moduleConfig.rules.push({
-  test: /\.css$/,
-  include: /bootstrap/,
-  use: ExtractTextPlugin.extract([{
-    loader: 'css-loader'
-  }])
-});
+// moduleConfig.rules.push({
+//   test: /\.css$/,
+//   include: /bootstrap/,
+//   use: ExtractTextPlugin.extract([{
+//     loader: 'css-loader'
+//   }])
+// });
 
 
 module.exports = moduleConfig;

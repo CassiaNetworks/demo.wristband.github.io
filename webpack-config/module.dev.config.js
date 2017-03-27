@@ -27,14 +27,14 @@ moduleConfig.rules.push({
   ],
 });
 
-moduleConfig.rules.push({
-  test: /\.css$/,
-  include: /bootstrap/,
-  // loader: 'style!css',
-  use: [
-    'style-loader', 'css-loader',
-  ],
-});
+// moduleConfig.rules.push({
+//   test: /\.css$/,
+//   include: /bootstrap/,
+//   // loader: 'style!css',
+//   use: [
+//     'style-loader', 'css-loader',
+//   ],
+// });
 
 moduleConfig.rules.push({
   test: /\.less$/,

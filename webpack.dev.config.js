@@ -5,5 +5,6 @@ module.exports = {
     resolve: require('./webpack-config/resolve.config'),
     plugins: require('./webpack-config/plugins.dev.config'),
     externals: require('./webpack-config/externals.config'),
-    devServer: require('./webpack-config/vendor/devServer.config')
+    devServer: require('./webpack-config/vendor/devServer.config'),
+    devtool: 'eval-source-map'
 }

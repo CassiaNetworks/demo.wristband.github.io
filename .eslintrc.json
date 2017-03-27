@@ -38,7 +38,8 @@
 	"globals": {
 		"jQuery": true,
 		"$": true,
-		"Backbone": true
+		"Backbone": true,
+		"_":true
 	}
 
 }
