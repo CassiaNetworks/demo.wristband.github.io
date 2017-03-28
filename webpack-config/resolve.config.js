@@ -5,21 +5,22 @@ module.exports = {
   alias: {
     /* 各种目录 */
     configDir: dirVars.configDir,
+    publicDir: dirVars.publicDir,
 
 
     /* vendor */
     /* bootstrap 相关 */
-  
+
 
     /* libs */
-   
 
-    
+
+
 
 
     /* components */
 
-    
+
 
     /* logic */
     // cm: path.resolve(dirVars.logicDir, 'common.module'),
@@ -30,5 +31,5 @@ module.exports = {
   },
 
   // 当require的模块找不到时，尝试添加这些后缀后进行寻找
-  extensions: [' ','.js', '.css', '.less']
+  extensions: [' ', '.js', '.css', '.less']
 };

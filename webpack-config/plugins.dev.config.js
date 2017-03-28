@@ -8,7 +8,7 @@ pluginsConfig.push(new webpack.DefinePlugin({
 pluginsConfig.push(new webpack.LoaderOptionsPlugin({
   options: {
     postcss: require('./vendor/postcss.config.js'),
-    eslint: require('./vendor/eslint.config.js')   
+    // eslint: require('./vendor/eslint.config.js')   
   }
 }));
 pluginsConfig.push(new webpack.HotModuleReplacementPlugin());

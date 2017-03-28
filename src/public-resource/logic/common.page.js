@@ -1,5 +1,3 @@
-require('backbone')
-const hubItem = Backbone.Model.extend({
-    
-})
+// require('backbone')
+
 const globalDate = Backbone.Collection.extend()

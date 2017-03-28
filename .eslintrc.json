@@ -12,7 +12,7 @@
 	"rules": {
 		"no-cond-assign": [2, "always"], //if, while等条件中不允许使用“=”
 		"no-constant-condition": 2,
-		"no-debugger": 2, // 程序中不能出现debugger
+		"no-debugger": 0, // 程序中不能出现debugger
 		"no-dupe-args": 2, // 函数的参数名称不能重复
 		"no-dupe-keys": 2, // 对象的属性名称不能重复
 		"no-duplicate-case": 2, // switch的case不能重复

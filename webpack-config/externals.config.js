@@ -1,6 +1,6 @@
 module.exports = {
   jquery: 'window.jQuery',
   Backbone:'window.Backbone',
-  underscore:'window.underscore',
+  _:'window.underscore',
   layui:'window.layui'
 };
