@@ -39,7 +39,8 @@
 		"jQuery": true,
 		"$": true,
 		"Backbone": true,
-		"_":true
+		"_":true,
+		"layui":true
 	}
 
 }

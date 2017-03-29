@@ -1,17 +1,16 @@
 {
-    "cn": {
-        "sport": {
+    "sport": {
+        "cn": {
+            "lang": "cn",
             "title": "Cassia 运动数据实时监测系统",
             "startWork": "开始",
             "config": "配置"
-        }
-    },
-    "en": {
-        "sport": {
+        },
+        "en": {
+            "lang": "en",
             "title": "Cassia Sport Real-time Monitoring System",
             "startWork": "Start",
             "config": "Config"
         }
     }
-
 }

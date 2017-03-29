@@ -1,9 +1,10 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   font-size: 62.5%;
-  background-color: #061223 !important;
-  color: #fff !important;
+  background-color: #061223;
+  /*color: #fff !important;*/
 }
 
 .clearfix:after {
@@ -14,7 +15,7 @@ html, body {
   visibility: hidden;
 }
 
-.sport-dashboard {
+.root {
   font-family: 'Microsoft YaHei';
 }
 
@@ -24,21 +25,23 @@ html, body {
   display: -ms-flexbox;
   display: flex;
   -webkit-justify-content: space-around;
-      -ms-flex-pack: distribute;
-          justify-content: space-around;
+  -ms-flex-pack: distribute;
+  justify-content: space-around;
   margin-top: 10px;
 }
+
 .start-config button {
   width: 20%;
   -webkit-box-flex: 0;
   -webkit-flex: none;
-      -ms-flex: none;
-          flex: none;
+  -ms-flex: none;
+  flex: none;
   font-size: 2rem;
   padding: .5rem;
 }
 
-ul, li {
+ul,
+li {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -49,7 +52,8 @@ img {
   height: 42px;
 }
 
-.sport-dashboard h1, .sport-dashboard h2 {
+.root h1,
+.root h2 {
   margin: 0px;
   padding: 0;
   font-size: 48px;
@@ -69,7 +73,7 @@ p {
   padding-right: 2%;
 }
 
-.sport-dashboard h1 {
+.root h1 {
   text-align: center;
 }
 
@@ -79,19 +83,19 @@ p {
   display: -ms-flexbox;
   display: flex;
   -webkit-flex-flow: row wrap;
-      -ms-flex-flow: row wrap;
-          flex-flow: row wrap;
+  -ms-flex-flow: row wrap;
+  flex-flow: row wrap;
   -webkit-box-pack: center;
   -webkit-justify-content: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
   -webkit-box-align: start;
   -webkit-align-items: flex-start;
-      -ms-flex-align: start;
-          align-items: flex-start;
+  -ms-flex-align: start;
+  align-items: flex-start;
   -webkit-align-content: flex-start;
-      -ms-flex-line-pack: start;
-          align-content: flex-start;
+  -ms-flex-line-pack: start;
+  align-content: flex-start;
   height: 100%;
   margin: 0 auto;
 }
@@ -101,8 +105,8 @@ p {
   box-sizing: border-box;
   -webkit-box-flex: 0;
   -webkit-flex: none;
-      -ms-flex: none;
-          flex: none;
+  -ms-flex: none;
+  flex: none;
   width: 300px;
   background: url(../../../public-resource/imgs/backpic2.jpg) -200px 0 no-repeat;
   height: 300px;
@@ -129,7 +133,7 @@ p {
   color: #fff;
 }
 
-.show-pannel li > p {
+.show-pannel li>p {
   font-size: 20px;
   margin-top: 10px;
   color: #fff;
@@ -143,7 +147,7 @@ p {
   width: 32%;
   height: 35%;
   background-color: #eea800;
-  box-shadow: 10px 10px  30px #222;
+  box-shadow: 10px 10px 30px #222;
 }
 
 .show-pannel div p {
@@ -167,7 +171,9 @@ p {
   top: 10%;
 }
 
-.yellow, .blue, .red {
+.yellow,
+.blue,
+.red {
   border-radius: 18px;
 }
 
@@ -179,7 +185,7 @@ p {
   height: 30%;
   left: 35%;
   top: 60%;
-  box-shadow: 10px 10px  30px #222;
+  box-shadow: 10px 10px 30px #222;
 }
 
 .blue img {
@@ -215,7 +221,7 @@ p {
   height: 30%;
   left: 60%;
   top: 41%;
-  box-shadow: 10px 10px  30px #222;
+  box-shadow: 10px 10px 30px #222;
 }
 
 .red img {
@@ -234,8 +240,8 @@ p {
   position: absolute;
   left: 50%;
   -webkit-transform: translateX(-50%);
-      -ms-transform: translateX(-50%);
-          transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
   width: 70%;
   font-size: 3rem;
   line-height: 3rem;
@@ -246,8 +252,8 @@ p {
   left: 50%;
   top: 50%;
   -webkit-transform: translate(-50%, -50%);
-      -ms-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
   width: 50%;
   height: 50%;
   border-radius: 10%;
@@ -271,51 +277,66 @@ p {
   color: #555;
 }
 
-.config-layer {
-  color: #000;
-  font-size: 1rem;
-}
-.config-layer .layui-form-item {
-  padding: 10px;
+.config-tip {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.layui-form-item {
-  padding: 10px;
-  font-size: 2rem;
+.config-tip .layui-layer-content {
+  /*width: 100%;*/
+}
+
+.config-tip li.hub-item {
+  flex: 0 1 auto;
+  margin-top: 10px;
+  border: 1px solid red;
+}
+
+.config-tip .layui-form-item {
+  padding: 5px;
+  font-size: 1.5rem;
   margin: 0 auto;
 }
-.layui-form-item label {
-  display: inline-block;
-  width: 184px;
-  text-align: right;
+
+.config-tip .layui-form-item label {
+  width: 80px;
+  height: 16px;
+  padding: 4px 9px 0 0;
 }
-.layui-form-item .layui-input-inline {
+
+.config-tip .layui-form-item .layui-input-inline {
   display: inline-block;
 }
-.layui-form-item .layui-input-inline input {
-  width: 300px;
+
+.config-tip .layui-form-item .layui-input-inline input {
   font-size: 1.5rem;
+  height: 28px;
+  line-height: 28px;
 }
-.layui-form-item .layui-input-inline textarea {
+
+.config-tip .layui-form-item .layui-input-inline textarea {
   font-size: 1.5rem;
   width: 300px;
   height: 100px;
 }
-.layui-form-item .layui-button {
+
+.config-tip .layui-form-item .layui-button {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   -webkit-justify-content: space-around;
-      -ms-flex-pack: distribute;
-          justify-content: space-around;
+  -ms-flex-pack: distribute;
+  justify-content: space-around;
 }
-.layui-form-item .layui-button button {
+
+.config-tip .layui-form-item .layui-button button {
   height: 50px;
   width: 122px;
   font-size: 2rem;
 }
-.layui-form-item .mac-css {
+
+.config-tip .layui-form-item .mac-css {
   position: relative;
   top: -88px;
 }
