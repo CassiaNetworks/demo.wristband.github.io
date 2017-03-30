@@ -1,18 +1,22 @@
+const hubConfig = require('configDir/hubConfig.json')
 const baseData = {
-    control: 1,
+    method: 0,
     hubMac: '',
     hubIp: '',
-    server: '',
-    developer: '',
-    password: ''
+    server: hubConfig.info.cloundAddress,
+    developer: hubConfig.info.developer,
+    password: hubConfig.info.password
 }
 const HubItemModel = Backbone.Model.extend({
-    defaults: baseData
+    defaults: baseData,
+    initialize:function(){
+        this.set('cid',this.cid)
+    }
 });
 
-const hubItemColle = Backbone.Collection.extend({
+const HubItemColle = Backbone.Collection.extend({
     initialize: function () {
-
+    
     }
 }, {
     test: function (model) {
@@ -21,4 +25,4 @@ const hubItemColle = Backbone.Collection.extend({
 });
 exports.baseData = baseData
 exports.Model = HubItemModel
-exports.collection = hubItemColle
+exports.Collection = HubItemColle

@@ -1,3 +1,3 @@
-// require('backbone')
-
-const globalDate = Backbone.Collection.extend()
+layui.use(['form'],function(){
+   module.exports.form = layui.form()
+})

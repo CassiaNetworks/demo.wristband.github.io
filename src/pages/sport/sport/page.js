@@ -4,7 +4,6 @@ const lang = require('configDir/lang.json')
 const sportBodyViewStr = require('./template/sportBodyViewStr')
 const sportEventProxy = require('./events/sportEvents')
 const utils = require('publicDir/libs/utils/utils')
-const configTip = require('./template/configTip')
 const hubItemView = require('./view/hubConfigView')
 const hubStr = require('./template/hubConfigItemStr')
 let SportBodyModel = Backbone.Model.extend({
@@ -19,13 +18,11 @@ let sportBodyModel = new SportBodyModel({
 	'lang': utils.getLang()
 })
 
-//layui 要求引入form依赖，特殊表单元素才能正常渲染
-
 let SportBodyView = Backbone.View.extend({
 	model: sportBodyModel,
 	events: {
 		"click #startWork": "startWork",
-		"click #config": "propConfig",
+		"click #config": "propConfig"
 	},
 	propConfig: function () {
 		sportEventProxy.trigger('config', {
@@ -38,18 +35,14 @@ let SportBodyView = Backbone.View.extend({
 				content: "<ul class='config-t8ip layui-form'></ul>"
 			}],
 			shade: 0.6 //遮罩透明度
-				,
+			,
 			maxmin: true //允许全屏最小化
-				,
+			,
 			anim: 5 //0-6的动画形式，-1不开启
-				,
+			,
 			success: function () {
-				layui.use('form', function () {
-					const form = layui.form()
-					new hubItemView({
-						el:$('.config-tip')
-					})
-					form.render()
+				new hubItemView({
+					el: $('.config-tip')
 				})
 			}
 		})
@@ -71,7 +64,8 @@ let SportBodyView = Backbone.View.extend({
 var sportView = new SportBodyView({
 	el: $('#root')
 })
-exports = sportView
+export default sportBodyModel
+module.exports = sportView
 setTimeout(function () {
 	sportView.changeLang('en')
 	$('#config').trigger('click')

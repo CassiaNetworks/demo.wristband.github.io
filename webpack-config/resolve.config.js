@@ -6,7 +6,7 @@ module.exports = {
     /* 各种目录 */
     configDir: dirVars.configDir,
     publicDir: dirVars.publicDir,
-
+    logicDir: dirVars.logicDir,
 
     /* vendor */
     /* bootstrap 相关 */
@@ -24,7 +24,7 @@ module.exports = {
 
     /* logic */
     // cm: path.resolve(dirVars.logicDir, 'common.module'),
-    // cp: path.resolve(dirVars.logicDir, 'common.page'),
+    cp: path.resolve(dirVars.logicDir, 'common.page'),
 
     /* config */
     configModule: path.resolve(dirVars.configDir, 'common.config')

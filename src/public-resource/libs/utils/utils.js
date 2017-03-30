@@ -1,9 +1,9 @@
+import lang from '../../../pages/sport/sport/page'
 exports.changeLang = function (jsonObj) {
-    if (Object.prototype.toString.apply(jsonObj) !== '[object Object]')
-        return
+    let _lang = jsonObj||lang
     $('[i18n]').each(function () {
         const key = $(this).attr('i18n')
-        jsonObj[key] && $(this).html(jsonObj[key])
+        _lang[key] && $(this).html(_lang[key])
     })
 }
 exports.getLang = function () {

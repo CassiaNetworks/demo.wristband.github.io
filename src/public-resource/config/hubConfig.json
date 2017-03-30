@@ -1,16 +1,16 @@
 {
     "info": {
-        "cloundAddress": "http://api1.cassianetworks.com",
+        "cloundAddress": "api1.cassianetworks.com",
         "developer": "tester",
         "password": "",
-        "tokenExpire": 3000 //3000秒
+        "tokenExpire": 3000 
     },
     "config": {
         "maxConnected": 14,
         "maxConnected0": 7,
         "maxConnected1": 7
     },
-    "connetedPeripherals": { //已连接设备
-        "checkConnTime": 3 //检查连接时间 秒
+    "connetedPeripherals": { 
+        "checkConnTime": 3 
     }
 }
