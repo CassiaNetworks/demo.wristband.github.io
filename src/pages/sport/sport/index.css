@@ -15,11 +15,11 @@ body {
   visibility: hidden;
 }
 
-.root {
+.sport-dashboard {
   font-family: 'Microsoft YaHei';
 }
 
-.start-config {
+.sport-dashboard .start-config {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -30,7 +30,7 @@ body {
   margin-top: 10px;
 }
 
-.start-config button {
+.sport-dashboard .start-config button {
   width: 20%;
   -webkit-box-flex: 0;
   -webkit-flex: none;
@@ -47,13 +47,18 @@ li {
   padding: 0;
 }
 
-img {
+p {
+  margin: 0;
+  padding: 0;
+}
+
+.sport-dashboard .show-pannel img {
   width: 42px;
   height: 42px;
 }
 
-.root h1,
-.root h2 {
+.sport-dashboard h1,
+.sport-dashboard h2 {
   margin: 0px;
   padding: 0;
   font-size: 48px;
@@ -61,23 +66,18 @@ img {
   font-weight: normal;
 }
 
-p {
-  margin: 0;
-  padding: 0;
-}
-
-.show-pannel {
+.sport-dashboard .show-pannel {
   height: 100%;
   margin-top: 20px;
   padding-left: 2%;
   padding-right: 2%;
 }
 
-.root h1 {
+.sport-dashboard h1 {
   text-align: center;
 }
 
-.show-pannel ul {
+.sport-dashboard .show-pannel ul {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -100,7 +100,7 @@ p {
   margin: 0 auto;
 }
 
-.show-pannel li {
+.sport-dashboard .show-pannel li {
   position: relative;
   box-sizing: border-box;
   -webkit-box-flex: 0;
@@ -114,32 +114,32 @@ p {
   border-radius: 20px;
 }
 
-.show-pannel li:nth-child(3n-1) {
+.sport-dashboard .show-pannel li:nth-child(3n-1) {
   background: url(../../../public-resource/imgs/backpic1.jpg) -200px 0 no-repeat;
 }
 
-.show-pannel li:nth-child(3n) {
+.sport-dashboard .show-pannel li:nth-child(3n) {
   background: url(../../../public-resource/imgs/backpic3.jpg) 0 0 no-repeat;
   background-size: 100% 100%;
 }
 
-.show-pannel ul li {
+.sport-dashboard .show-pannel ul li {
   margin: 0 15px 15px 0;
 }
 
-.show-pannel h2 {
+.sport-dashboard .show-pannel h2 {
   margin-top: 20px;
   font-size: 48px;
   color: #fff;
 }
 
-.show-pannel li>p {
+.sport-dashboard .show-pannel li>p {
   font-size: 20px;
   margin-top: 10px;
   color: #fff;
 }
 
-.show-pannel .yellow {
+.sport-dashboard .show-pannel .yellow {
   position: absolute;
   z-index: 30;
   left: 5%;
@@ -150,34 +150,34 @@ p {
   box-shadow: 10px 10px 30px #222;
 }
 
-.show-pannel div p {
+.sport-dashboard .show-pannel div p {
   font-size: 18px;
 }
 
-.show-pannel div span {
+.sport-dashboard .show-pannel div span {
   font-size: 22px;
 }
 
-.yellow p {
+.sport-dashboard .yellow p {
   width: 90%;
   position: absolute;
   bottom: 5%;
   left: 8%;
 }
 
-.show-pannel .yellow img {
+.sport-dashboard .show-pannel .yellow img {
   position: absolute;
   right: 5%;
   top: 10%;
 }
 
-.yellow,
-.blue,
-.red {
+.sport-dashboard .show-pannel .yellow,
+.sport-dashboard .show-pannel .blue,
+.sport-dashboard .show-pannel .red {
   border-radius: 18px;
 }
 
-.blue {
+.sport-dashboard .show-pannel .blue {
   position: absolute;
   z-index: 20;
   background-color: #2283f6;
@@ -188,13 +188,13 @@ p {
   box-shadow: 10px 10px 30px #222;
 }
 
-.blue img {
+.sport-dashboard .show-pannel .blue img {
   position: absolute;
   left: 15%;
   top: 10%;
 }
 
-.blue a {
+.sport-dashboard .show-pannel .blue a {
   position: absolute;
   width: 42px;
   height: 42px;
@@ -203,17 +203,17 @@ p {
   background: url(../../../public-resource/imgs/refresh.jpg) 0 0 no-repeat;
 }
 
-.blue a:hover {
+.sport-dashboard .show-pannel .blue a:hover {
   background: url(../../../public-resource/imgs/refresh_hover.jpg) 0 0 no-repeat;
 }
 
-.blue p {
+.sport-dashboard .show-pannel .blue p {
   position: absolute;
   bottom: 10%;
   left: 15%;
 }
 
-.red {
+.sport-dashboard .show-pannel .red {
   position: absolute;
   z-index: 10;
   background-color: #fe3d50;
@@ -224,19 +224,19 @@ p {
   box-shadow: 10px 10px 30px #222;
 }
 
-.red img {
+.sport-dashboard .show-pannel .red img {
   position: absolute;
   top: 10%;
   right: 10%;
 }
 
-.red p {
+.sport-dashboard .show-pannel .red p {
   position: absolute;
   bottom: 20%;
   left: 30%;
 }
 
-.show-pannel button {
+.sport-dashboard .show-pannel button {
   position: absolute;
   left: 50%;
   -webkit-transform: translateX(-50%);
@@ -247,7 +247,7 @@ p {
   line-height: 3rem;
 }
 
-.reset {
+.sport-dashboard .show-pannel .reset {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -264,11 +264,11 @@ p {
   box-shadow: 10px 10px 3px #222;
 }
 
-.start {
+.sport-dashboard .start {
   top: 18%;
 }
 
-.end {
+.sport-dashboard .end {
   top: 44%;
 }
 
@@ -282,8 +282,24 @@ p {
   flex-wrap: wrap;
 }
 
-.config-tip .layui-layer-content {
-  /*width: 100%;*/
+.config-tip .addhub img {
+  width: 301px;
+  height: 301px;
+}
+
+.config-tip .hub-item .test button {
+  margin: 0 0 0 10px;
+  padding: 0 25px
+}
+
+.config-tip .hub-item .test i {
+  margin-left: 40px;
+  font-size: 30px;
+  display: inline-block;
+}
+
+.config-tip .layui-form-radio {
+  margin: 1px 10px 0 0;
 }
 
 .config-tip li.hub-item {
@@ -298,20 +314,26 @@ p {
   margin: 0 auto;
 }
 
+.config-tip li.hub-item button {
+  float: left;
+}
+
 .config-tip .layui-form-item label {
   width: 80px;
-  height: 16px;
-  padding: 4px 9px 0 0;
+  height: 30px;
+  line-height: 30px;
+  padding: 1px 9px 0 0;
 }
 
 .config-tip .layui-form-item .layui-input-inline {
   display: inline-block;
+  line-height: 32px;
 }
 
 .config-tip .layui-form-item .layui-input-inline input {
   font-size: 1.5rem;
-  height: 28px;
-  line-height: 28px;
+  height: 30px;
+  line-height: 30px;
 }
 
 .config-tip .layui-form-item .layui-input-inline textarea {
