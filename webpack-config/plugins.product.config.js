@@ -7,7 +7,7 @@ pluginsConfig.push(new webpack.optimize.UglifyJsPlugin({
   compress: {
     warnings: false
   },
-  sourceMap:false
+  sourceMap: false
 }));
 
 pluginsConfig.push(new webpack.DefinePlugin({

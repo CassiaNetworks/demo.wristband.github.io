@@ -8,7 +8,8 @@
             "control":"控制方式",
             "local":"本地",
             "remote":"云端",
-            "test":"测试"
+            "test":"测试",
+            "deletes":"移除"
         },
         "en": {
             "lang": "en",
@@ -18,7 +19,8 @@
             "control":"control",
             "local":"local",
             "remote":"remote",
-            "test":"test"
+            "test":"Test",
+            "deletes":"Delete"
             
         }
     }

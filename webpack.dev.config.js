@@ -6,5 +6,5 @@ module.exports = {
     plugins: require('./webpack-config/plugins.dev.config'),
     externals: require('./webpack-config/externals.config'),
     devServer: require('./webpack-config/vendor/devServer.config'),
-    devtool: 'cheap-module-source-map'
+    devtool: 'source-map'
 }

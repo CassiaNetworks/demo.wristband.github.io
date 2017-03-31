@@ -280,16 +280,24 @@ p {
 .config-tip {
   display: flex;
   flex-wrap: wrap;
+  justify-content:center;
+  padding:0 20px;
 }
-
+.config-tip .hub-item{
+  margin: 0 auto;
+}
+.config-tip .last-li{
+  width:100%;
+}
 .config-tip .addhub img {
   width: 301px;
   height: 301px;
 }
 
-.config-tip .hub-item .test button {
+.config-tip .hub-item .test button,
+.config-tip .hub-item .delete button {
   margin: 0 0 0 10px;
-  padding: 0 25px
+  width:66px;
 }
 
 .config-tip .hub-item .test i {
@@ -302,7 +310,7 @@ p {
   margin: 1px 10px 0 0;
 }
 
-.config-tip li.hub-item {
+.config-tip .hub-item {
   flex: 0 1 auto;
   margin-top: 10px;
   border: 1px solid red;
