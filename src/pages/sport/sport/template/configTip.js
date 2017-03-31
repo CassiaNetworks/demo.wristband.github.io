@@ -39,7 +39,7 @@ var addSrc = require('publicDir/imgs/addback.jpg')
                             <div class="layui-form-item">
                                 <label class="layui-form-label">Password</label>
                                 <div class="layui-input-inline">
-                                    <input type="password" name="Password" placeholder="tester" value="" class="layui-input">
+                                    <input type="password" name="password" placeholder="tester" value="" class="layui-input">
                                 </div>
                             </div>
 

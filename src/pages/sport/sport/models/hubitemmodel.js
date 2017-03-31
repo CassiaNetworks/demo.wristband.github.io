@@ -18,10 +18,6 @@ const HubItemColle = Backbone.Collection.extend({
     initialize: function () {
     
     }
-}, {
-    test: function (model) {
-        console.log(model)
-    }
 });
 exports.baseData = baseData
 exports.Model = HubItemModel

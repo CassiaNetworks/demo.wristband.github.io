@@ -6,7 +6,7 @@ const sportEventProxy = require('./events/sportEvents')
 const utils = require('publicDir/libs/utils/utils')
 const hubItemView = require('./view/hubConfigView')
 const hubStr = require('./template/hubConfigItemStr')
-let SportBodyModel = Backbone.Model.extend({
+const SportBodyModel = Backbone.Model.extend({
 	defaults: lang.sport,
 	initialize: function () {
 		this.on('change:lang', function (model, newValue) {
@@ -14,11 +14,11 @@ let SportBodyModel = Backbone.Model.extend({
 		})
 	}
 })
-let sportBodyModel = new SportBodyModel({
+const sportBodyModel = new SportBodyModel({
 	'lang': utils.getLang()
 })
 
-let SportBodyView = Backbone.View.extend({
+const SportBodyView = Backbone.View.extend({
 	model: sportBodyModel,
 	events: {
 		"click #startWork": "startWork",

@@ -283,6 +283,10 @@ p {
   justify-content:center;
   padding:0 20px;
 }
+
+.config-tip .layui-bg-gray{
+  background-color: #eee;
+}
 .config-tip .hub-item{
   margin: 0 auto;
 }
