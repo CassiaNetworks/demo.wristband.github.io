@@ -2,7 +2,7 @@ let hubConfigItemStr = require('../template/hubConfigItemStr')
 let peripheralsConfigItemStr = require('../template/peripheralsConfigItemStr')
 const hubItem = require('../models/hubitemmodel')
 const perItem = require('../models/peripheralitemmodel')
-
+const utils =require('utils/utils')
 let layuis = require('cp')
 import appModel from '../page'
 
@@ -24,6 +24,7 @@ let HubItemView = Backbone.View.extend({
         'click .delete button': 'delete'
     },
     initialize: function () {
+
         //判断传选择的视图  hub配置或者peripheral配置
         if (this.attributes.view === 'hub') {
             this.attributes._model = hubItem.Model
@@ -66,6 +67,12 @@ let HubItemView = Backbone.View.extend({
                         return 'Location不能为空'
                     }
                 },
+                perMac: function (value) {
+                    const _value = $.trim(value)
+                    if (_value && !utils.Reg.mac.test(_value)) {
+                        return 'Mac输入错误'
+                    }
+                },
                 mac: function (value) {
                     const _value = $.trim(value)
                     if (_value === '') {
@@ -74,7 +81,7 @@ let HubItemView = Backbone.View.extend({
                     if (/\：/.test(_value)) {
                         return '请使用英文符号'
                     }
-                    if (!/^([0-9a-f]{2}\:){5}[0-9a-f]{2}$/i.test(_value)) {
+                    if (!utils.Reg.mac.test(_value)) {
                         return 'Mac输入错误'
                     }
 
@@ -84,10 +91,10 @@ let HubItemView = Backbone.View.extend({
                     if (_value === '') {
                         return 'HubIp不能为空'
                     }
-                    if (/\。/.test(_value)) {
+                    if (utils.Reg.server.test(_value)) {
                         return '请使用英文符号'
                     }
-                    if (!/^(?:(?:2[0-4][0-9]\.)|(?:25[0-5]\.)|(?:1[0-9][0-9]\.)|(?:[1-9][0-9]\.)|(?:[0-9]\.)){3}(?:(?:2[0-5][0-5])|(?:25[0-5])|(?:1[0-9][0-9])|(?:[1-9][0-9])|(?:[0-9]))$/.test(_value)) {
+                    if (!utils.Reg.ip.test(_value)) {
                         return 'HubIp输入错误'
                     }
 
@@ -97,7 +104,7 @@ let HubItemView = Backbone.View.extend({
                     if (_value === '') {
                         return 'Server不能为空'
                     }
-                    if (/\。/.test(_value)) {
+                    if (utils.Reg.server.test(_value)) {
                         return '请使用英文符号'
                     }
                 },
@@ -106,7 +113,7 @@ let HubItemView = Backbone.View.extend({
                     if (_value === '') {
                         return 'Developer不能为空'
                     }
-                    if (!/^[a-z_]+[a-z0-9_]*$/i.test(_value)) {
+                    if (!utils.Reg.developer.test(_value)) {
                         return 'Develop只能是字母数字下划线，且不能以数字开头'
                     }
                 },

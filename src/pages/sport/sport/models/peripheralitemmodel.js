@@ -15,8 +15,6 @@ const PerItemColle = Backbone.Collection.extend({
     initialize:function(){
         this.add(new PerItemModel)
     }
-},{
-    allPers:allPers
 });
 exports.baseData = baseData
 exports.Model = PerItemModel

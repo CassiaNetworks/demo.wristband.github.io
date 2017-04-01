@@ -25,7 +25,7 @@ module.exports = {
     /* logic */
     // cm: path.resolve(dirVars.logicDir, 'common.module'),
     cp: path.resolve(dirVars.logicDir, 'common.page'),
-
+    utils:path.resolve(dirVars.libsDir,'utils'),
     /* config */
     configModule: path.resolve(dirVars.configDir, 'common.config')
   },

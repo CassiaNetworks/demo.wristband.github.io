@@ -1,21 +1,30 @@
-var addSrc = require('publicDir/imgs/addback.jpg')
-
+const addSrc = require('publicDir/imgs/addback.jpg')
+const hubConfig = require('configDir/peripheralConfig.json')
+const allPers = hubConfig.allPers
+let options=''
+allPers.forEach((item,index)=>{
+    options+=`<option value=${item} ${index===0?'selected':''}   >${item}</option>`
+})
 //hubitem外的字符串
 module.exports.ul = ` <ul class='config-tip-peripheral config-tip layui-form'></ul>`
 
 //每个hubitem的字符串          
 module.exports.liItem = ` <li class="hub-item" data-cid=<%= cid %> >
-                           
                             <div class="layui-form-item">
-                                <label class="layui-form-label">Name</label>
-                                <div class="layui-input-inline">
-                                    <input type="text" <%- cid%> name="name"  placeholder="请输入手环名字"  value='<%= cid %>' class="layui-input">
-                                </div>
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">Name</label>
+                                    <div class="layui-input-inline">
+                                        <select name="name"  <%- cid%> lay-verify="required" lay-search="">
+                                            ${options}
+                                        </select>
+                                    </div>
+                                    </div>
+                            
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">Mac</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" <%- cid%> name="mac" lay-verify="hubMac" placeholder="CC:1B:E0:E0:1B:04" value='' class="layui-input">
+                                    <input type="text" <%- cid%> name="mac" lay-verify="perMac" placeholder="CC:1B:E0:E0:1B:04" value='' class="layui-input">
                                 </div>
                             </div>
                             <div class="layui-form-item test">
