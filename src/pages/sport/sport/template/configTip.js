@@ -9,6 +9,12 @@ var addSrc = require('publicDir/imgs/addback.jpg')
                                 </div>
                             </div>
                             <div class="layui-form-item">
+                                <label class="layui-form-label">Location</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="location" placeholder="输入位置信息" value=<%= cid %> class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
                                 <label class="layui-form-label">HubMac</label>
                                 <div class="layui-input-inline">
                                     <input type="text" name="hubMac" placeholder="CC:1B:E0:E0:1B:04" value=<%= hubMac %> class="layui-input">

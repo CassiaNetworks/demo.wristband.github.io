@@ -1,7 +1,7 @@
 const hubConfig = require('configDir/hubConfig.json')
 const baseData = {
     method: 0,
-    hubMac: '',
+    hubMac: 'CC:1B:E0:E0:',
     hubIp: '',
     server: hubConfig.info.cloundAddress,
     developer: hubConfig.info.developer,
@@ -15,9 +15,7 @@ const HubItemModel = Backbone.Model.extend({
 });
 
 const HubItemColle = Backbone.Collection.extend({
-    initialize: function () {
     
-    }
 });
 exports.baseData = baseData
 exports.Model = HubItemModel

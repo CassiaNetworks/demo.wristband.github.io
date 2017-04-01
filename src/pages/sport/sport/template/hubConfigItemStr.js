@@ -1,7 +1,7 @@
 var addSrc = require('publicDir/imgs/addback.jpg')
 
 //hubitem外的字符串
-module.exports.ul = ` <ul class='config-tip layui-form'></ul>`
+module.exports.ul = ` <ul class='config-tip-hub config-tip layui-form'></ul>`
 
 //每个hubitem的字符串          
 module.exports.liItem = ` <li class="hub-item" data-cid=<%= cid %> >
@@ -13,9 +13,15 @@ module.exports.liItem = ` <li class="hub-item" data-cid=<%= cid %> >
                                 </div>
                             </div>
                             <div class="layui-form-item">
+                                <label class="layui-form-label">Location</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" <%- cid%> name="location" lay-verify="location" placeholder="请输入位置信息"  value='<%= cid %>' class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
                                 <label class="layui-form-label">HubMac</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" <%- cid%> name="hubMac" lay-verify="hubMac" placeholder="CC:1B:E0:E0:1B:04" value='<%= hubMac %>' class="layui-input">
+                                    <input type="text" <%- cid%> name="hubMac" lay-verify="mac" placeholder="CC:1B:E0:E0:1B:04" value='<%= hubMac %>' class="layui-input">
                                 </div>
                             </div>
 

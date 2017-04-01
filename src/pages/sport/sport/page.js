@@ -4,8 +4,13 @@ const lang = require('configDir/lang.json')
 const sportBodyViewStr = require('./template/sportBodyViewStr')
 const sportEventProxy = require('./events/sportEvents')
 const utils = require('publicDir/libs/utils/utils')
-const hubItemView = require('./view/hubConfigView')
+const HubItemView = require('./view/hubConfigView')
 const hubStr = require('./template/hubConfigItemStr')
+const perpheralStr = require('./template/peripheralsConfigItemStr')
+
+
+
+
 const SportBodyModel = Backbone.Model.extend({
 	defaults: lang.sport,
 	initialize: function () {
@@ -17,7 +22,8 @@ const SportBodyModel = Backbone.Model.extend({
 const sportBodyModel = new SportBodyModel({
 	'lang': utils.getLang()
 })
-
+//定义hub配置页面中hub的视图
+let hubItemView, perpheralItemView
 const SportBodyView = Backbone.View.extend({
 	model: sportBodyModel,
 	events: {
@@ -26,24 +32,39 @@ const SportBodyView = Backbone.View.extend({
 	},
 	propConfig: function () {
 		sportEventProxy.trigger('config', {
+			closeBtn: 1,
 			area: ['700px', '500px'],
 			tab: [{
-				title: "hub配置",
+				title: "蓝牙路由器配置",
 				content: hubStr.ul
 			}, {
-				title: 'gggggg',
-				content: "<ul class='config-t8ip layui-form'></ul>"
+				title: '手环配置',
+				content: perpheralStr.ul
 			}],
 			shade: 0.6 //遮罩透明度
-			,
+				,
 			maxmin: true //允许全屏最小化
-			,
+				,
 			anim: 5 //0-6的动画形式，-1不开启
-			,
+				,
+			//弹窗成功后的回调
 			success: function () {
-				new hubItemView({
-					el: $('.config-tip')
+				hubItemView = new HubItemView({
+					el: $('.config-tip-hub'),
+					// model: new hubItem.Collection,
+					attributes:{'view':'hub'}
 				})
+				perpheralItemView = new HubItemView({
+					el: $('.config-tip-peripheral'),
+					// model: new perItem.Collection,
+					attributes:{'view':'perpheral'}
+				})
+			},
+			//右上角取消回调
+			cancel: function () {
+				//销毁hub配置页面中hub的视图
+				hubItemView.remove()
+				perpheralItemView.remove()
 			}
 		})
 	},
