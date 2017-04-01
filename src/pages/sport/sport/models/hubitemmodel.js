@@ -9,13 +9,15 @@ const baseData = {
 }
 const HubItemModel = Backbone.Model.extend({
     defaults: baseData,
-    initialize:function(){
-        this.set('cid',this.cid)
+    initialize: function () {
+        this.set('cid', this.cid)
     }
 });
 
 const HubItemColle = Backbone.Collection.extend({
-    
+    initialize: function () {
+        this.add(new HubItemModel)
+    }
 });
 exports.baseData = baseData
 exports.Model = HubItemModel

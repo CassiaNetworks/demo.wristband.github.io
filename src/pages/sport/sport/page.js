@@ -4,7 +4,7 @@ const lang = require('configDir/lang.json')
 const sportBodyViewStr = require('./template/sportBodyViewStr')
 const sportEventProxy = require('./events/sportEvents')
 const utils = require('publicDir/libs/utils/utils')
-const HubItemView = require('./view/hubConfigView')
+const SportConfigView = require('./view/sportConfigView')
 const hubStr = require('./template/hubConfigItemStr')
 const perpheralStr = require('./template/peripheralsConfigItemStr')
 
@@ -49,12 +49,12 @@ const SportBodyView = Backbone.View.extend({
 				,
 			//弹窗成功后的回调
 			success: function () {
-				hubItemView = new HubItemView({
+				hubItemView = new SportConfigView({
 					el: $('.config-tip-hub'),
 					// model: new hubItem.Collection,
 					attributes:{'view':'hub'}
 				})
-				perpheralItemView = new HubItemView({
+				perpheralItemView = new SportConfigView({
 					el: $('.config-tip-peripheral'),
 					// model: new perItem.Collection,
 					attributes:{'view':'perpheral'}

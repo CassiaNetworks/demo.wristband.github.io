@@ -12,7 +12,9 @@ const PerItemModel = Backbone.Model.extend({
 });
 
 const PerItemColle = Backbone.Collection.extend({
-    
+    initialize:function(){
+        this.add(new PerItemModel)
+    }
 },{
     allPers:allPers
 });
