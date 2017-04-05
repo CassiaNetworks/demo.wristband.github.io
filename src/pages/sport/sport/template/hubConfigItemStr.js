@@ -8,8 +8,8 @@ module.exports.liItem = ` <li class="hub-item" data-cid=<%= cid %> >
                             <div class="layui-form-item">
                                 <label class="layui-form-label"   i18n="control"><%= control %></label>
                                 <div>
-                                    <input type="radio" <%- cid%> name=<%= cid %> lay-filter=<%= cid %>  value="0" i18n="local"   <%- method===0?'checked':'' %> title = '<%= local %>' >
-                                    <input type="radio" <%- cid%> name=<%= cid %> lay-filter=<%= cid %>  value="1" i18n="remote"  <%- method===1?'checked':'' %> title = '<%= remote %>'>
+                                    <input type="radio" <%- cid%> name=<%= cid %> lay-filter='<%= cid %>'  value="0" i18n="local"   <%- method==0?'checked':'' %> title = '<%= local %>' >
+                                    <input type="radio" <%- cid%> name=<%= cid %> lay-filter='<%= cid %>'  value="1" i18n="remote"  <%- method==1?'checked':'' %> title = '<%= remote %>'>
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -54,7 +54,7 @@ module.exports.liItem = ` <li class="hub-item" data-cid=<%= cid %> >
                             </div>
 
                             <div class="layui-form-item test">
-                                <button class="layui-btn layui-btn-small" lay-submit lay-filter="hubs" lay-select=<%= cid %>  data-cid=<%- cid %>><%= test %></button>
+                                <button class="layui-btn layui-btn-small" lay-submit lay-filter="testHub" lay-select=<%= cid %>  data-cid=<%- cid %>><%= test %></button>
                                 <div class="layui-input-inline">
                                     <i data-cid=<%= cid %> >OK</i>
                                 </div>
@@ -71,7 +71,7 @@ module.exports.footer = `<li class="hub-item addhub">
                         </li>
                         <li class="layui-form-item last-li">
                             <div class="layui-button">
-                                <button class="layui-btn" id="finsh">完成</button>
-                                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                <button class="layui-btn finsh" >完成</button>
+                                <button type="reset" class="layui-btn reset layui-btn-primary">重置</button>
                             </div>
                         </li>`

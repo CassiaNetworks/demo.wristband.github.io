@@ -2,7 +2,7 @@ let hubConfigItemStr = require('../template/hubConfigItemStr')
 let peripheralsConfigItemStr = require('../template/peripheralsConfigItemStr')
 const hubItem = require('../models/hubitemmodel')
 const perItem = require('../models/peripheralitemmodel')
-const utils =require('utils/utils')
+const utils = require('utils/utils')
 let layuis = require('cp')
 import appModel from '../page'
 
@@ -21,10 +21,11 @@ let HubItemView = Backbone.View.extend({
     events: {
         'click .addhub': 'addhub',
         'click .test button': 'test',
-        'click .delete button': 'delete'
+        'click .delete button': 'delete',
+        'click .finsh': 'finsh',
+        'click .reset': 'reset'
     },
     initialize: function () {
-
         //判断传选择的视图  hub配置或者peripheral配置
         if (this.attributes.view === 'hub') {
             this.attributes._model = hubItem.Model
@@ -124,19 +125,45 @@ let HubItemView = Backbone.View.extend({
                     }
                 }
             });
+            //点击hubtest时绑定事件
+            layuis.form.on('submit(testHub)', function (e) {
+                const data = utils.trimeClone(e.field),
+                    cid = e.elem.dataset.cid,
+                    submodel = this.model().get(cid)
+
+                for (let key in data) {
+                    submodel.set(key, data[key])
+                }
+                submodel.set('method', data[cid])
+                console.log('hub配置信息', submodel.attributes)
+                this.model().test(submodel.toJSON())
+
+                return false;
+            }.bind(this));
+
 
         } else {
-            this.attributes['template'] = _.template(peripheralsConfigItemStr.liItem)
+            this.attributes['template'] = peripheralsConfigItemStr.liItem
             this.attributes._model = perItem.Model
             this.attributes.select = 'ul.config-tip-peripheral li.addhub'
+
+            /**
+             *点击手环test时绑定事件
+             */
+            layuis.form.on('submit(testPer)', function (e) {
+                const data = utils.trimeClone(e.field),
+                    cid = e.elem.dataset.cid,
+                    submodel = this.model().get(cid)
+
+                for (let key in data) {
+                    submodel.set(key, data[key])
+                }
+                debugger
+                this.model().test(submodel.toJSON())
+                return false;
+            }.bind(this));
         }
-
-        layuis.form.on('submit(hubs)', function (data) {
-            console.log(JSON.stringify(data.field));
-            return false;
-        });
         this.render()
-
     },
     addhub: function () {
         const newModel = new this.attributes._model,
@@ -145,26 +172,8 @@ let HubItemView = Backbone.View.extend({
         let keys = _.defaults(newModel.toJSON(), lang)
         $(this.attributes.select).before(this.attributes.template(keys))
         layuis.form.render()
-    },
-    getData: function (cid) {
-        const $li = $(`li[data-cid='${cid}']`, this.el),
-            form = layuis.form
-        let _method = this.model().findWhere({
-                cid
-            }).get('method'),
-            objArr = $('input[type = "text"]', $li).serializeArray(),
-            parseData = {}
-        for (let item of objArr) {
-            parseData[item.name] = item.value
-        }
-        parseData.method = _method
-        form.on(`radio(${cid})`, function (data) {
-            parseData.method = _method = data.value
-        });
-    },
-    test: function (e) {
-        // const cid = e.target.dataset.cid
-        // this.getData(cid)
+        const radio = $('.layui-unselect.layui-form-radio.layui-form-radioed>i')
+        radio.trigger('click')
     },
     delete: function (e) {
         const cid = e.target.dataset.cid,
@@ -173,6 +182,12 @@ let HubItemView = Backbone.View.extend({
         parent.remove()
 
     },
+    finsh: function (e) {
+        this.model().test()
+    },
+    reset: function (e) {
+        debugger
+    },
     render: function () {
 
         let str = ''
@@ -180,11 +195,22 @@ let HubItemView = Backbone.View.extend({
         const self = this
         this.model().models.forEach(function (item) {
             str += self.attributes.template(_.defaults({}, item.toJSON(), lang))
-            console.log(_.defaults({}, item.toJSON(), lang).method)
         })
         str += hubConfigItemStr.footer
         this.$el.html(str)
         layuis.form.render()
+        // const $icon = this.$el.find('.layui-anim.layui-icon')
+        const $radio = $('.layui-unselect.layui-form-radio.layui-form-radioed>i')
+        // $icon.removeClass('layui-anim')
+        $radio.trigger('click')
+        // $icon.addClass('layui-anim layui-anim-scaleSpring')
+
+
+
+
+
+
+
     }
 });
 

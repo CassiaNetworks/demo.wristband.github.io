@@ -19,3 +19,12 @@ exports.Reg = {
     developer: /^[a-z_]+[a-z0-9_]*$/i
 
 }
+
+exports.trimeClone = function (obj) {
+    let data = {},
+        _obj = obj || {}
+    for (let key in obj) {
+        data[key] = $.trim(_obj[key])
+    }
+    return data
+}

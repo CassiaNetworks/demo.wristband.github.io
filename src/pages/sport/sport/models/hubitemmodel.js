@@ -1,3 +1,4 @@
+const api = require('publicDir/libs/api/api.js')
 const hubConfig = require('configDir/hubConfig.json')
 const baseData = {
     method: 0,
@@ -17,6 +18,21 @@ const HubItemModel = Backbone.Model.extend({
 const HubItemColle = Backbone.Collection.extend({
     initialize: function () {
         this.add(new HubItemModel)
+    },
+    test: function (data) {
+        api.use({
+            data
+        }).oath2({
+            success:function(){
+                this.model()
+            }
+        })
+        api.on('oauth2', api.getInfo({
+            success: function () {
+                debugger
+            },
+            context:this
+        }))
     }
 });
 exports.baseData = baseData

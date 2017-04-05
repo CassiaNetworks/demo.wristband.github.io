@@ -51,12 +51,10 @@ const SportBodyView = Backbone.View.extend({
 			success: function () {
 				hubItemView = new SportConfigView({
 					el: $('.config-tip-hub'),
-					// model: new hubItem.Collection,
 					attributes:{'view':'hub'}
 				})
 				perpheralItemView = new SportConfigView({
 					el: $('.config-tip-peripheral'),
-					// model: new perItem.Collection,
 					attributes:{'view':'perpheral'}
 				})
 			},
