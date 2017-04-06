@@ -215,3 +215,7 @@ let HubItemView = Backbone.View.extend({
 });
 
 module.exports = HubItemView
+export default {
+    hubItemCollection,
+    perItemCollection
+}

@@ -1,4 +1,4 @@
-const api = require('publicDir/libs/api/api.js')
+import api from 'publicDir/libs/api/api.js'
 const hubConfig = require('configDir/hubConfig.json')
 const baseData = {
     method: 0,
@@ -20,19 +20,33 @@ const HubItemColle = Backbone.Collection.extend({
         this.add(new HubItemModel)
     },
     test: function (data) {
-        api.use({
-            data
-        }).oath2({
-            success:function(){
-                this.model()
+        api.use(data).oauth2({
+            context: this.get(data.cid),
+            success: function () {
+                console.log('获取token成功')
+            },
+            error: function (xhr) {
+                debugger
+                $(`li[data-cid='${this.context.cid}']`).find('.test i').html('get token failed')
+                console.log('获取token失败')
             }
         })
-        api.on('oauth2', api.getInfo({
-            success: function () {
-                debugger
-            },
-            context:this
-        }))
+        api.on('oauth2', function () {
+            api.getInfo({
+                success: function (data) {
+                    debugger
+                    this.set('msg', data)
+                    //显示测试卷结果
+                    $(`li[data-cid='${this.context.cid}']`).find('.test i').html(data)
+                },
+                error: function (xhr) {
+                    debugger
+                    this.context.set('msg', xhr[1])
+                    $(`li[data-cid='${this.context.cid}']`).find('.test i').html(xhr[1])
+                },
+                context: this.get(data.cid)
+            })
+        })
     }
 });
 exports.baseData = baseData

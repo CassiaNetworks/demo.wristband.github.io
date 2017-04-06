@@ -1,7 +1,7 @@
 /**
  * 2017/04/05 
  */
-(function (G) {
+export default (function (G) {
     let api = {}
     let __es = function (target, url, fn) {
         let es = target.es = new EventSource(String(url));
@@ -22,8 +22,8 @@
         o = o || {}
         let reg_ip = /(\d+)\.(\d+)\.(\d+)\.(\d+)/;
         // local
-        if (o.server && typeof o.server === 'string' && o.method === '0' && reg_ip.test(o.server)) {
-            api.server = 'http://' + o.hubIP
+        if (o.method === '0' && reg_ip.test(o.hubIp)) {
+            api.server = 'http://' + o.hubIp
             api.local = true
             // cloud
         } else if (o.server && typeof o.server === 'string' && o.method === '1') {
@@ -47,10 +47,10 @@
     api.oauth2 = function (o) {
         o = o || {}
         let next = function (d) {
-            api.access_token = d || '',
-                api.authorization = 'Bearer ' + (d || ''),
-                o.success && o.success(d),
-                api.trigger('oauth2', [d])
+            api.access_token = d || ''
+            api.authorization = 'Bearer ' + (d || '')
+            o.success && o.success(d)
+            api.trigger('oauth2', [d])
         }
         if (api.local) {
             next()
@@ -64,8 +64,13 @@
                 data: {
                     "grant_type": "client_credentials"
                 },
+                context: o.context || this,
                 success: function (data) {
+                    debugger
                     next(data.access_token)
+                },
+                error: function () {
+                    o.error && o.error(arguments)
                 }
             })
         }
@@ -233,11 +238,9 @@
     api.getInfo = function (o) {
         o = o || {}
         let _url = api.server
-        if (api.local) {
-            _url = api.hubIp
-        }
+
         //local 可能有问题
-        _url += `cassia/hubs/${api.hub}`
+        _url += `/cassia/hubs/${api.hub}`
         $.ajax({
             type: 'get',
             url: _url,
@@ -247,11 +250,14 @@
             context: o.context || this,
             dataType: 'json',
             success: function (data) {
-                o.success && o.success.call(this, data)
+                o.success && o.success(data)
+            },
+            error: function () {
+                o.error && o.error(arguments)
             }
         })
         return api
     }
-
-    G.api = api
-})(this||window);
+    return api
+    // G.api = api
+})();

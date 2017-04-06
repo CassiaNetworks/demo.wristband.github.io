@@ -5,6 +5,7 @@ const sportBodyViewStr = require('./template/sportBodyViewStr')
 const sportEventProxy = require('./events/sportEvents')
 const utils = require('publicDir/libs/utils/utils')
 const SportConfigView = require('./view/sportConfigView')
+import hubColl from './view/sportConfigView'
 const hubStr = require('./template/hubConfigItemStr')
 const perpheralStr = require('./template/peripheralsConfigItemStr')
 
@@ -65,6 +66,9 @@ const SportBodyView = Backbone.View.extend({
 				perpheralItemView.remove()
 			}
 		})
+	},
+	startWork:function(){
+		console.log(hubColl)
 	},
 	initialize: function () {
 		this.render()
