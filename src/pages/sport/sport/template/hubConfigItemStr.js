@@ -21,7 +21,7 @@ module.exports.liItem = ` <li class="hub-item" data-cid=<%= cid %> >
                             <div class="layui-form-item">
                                 <label class="layui-form-label">HubMac</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" <%- cid%> name="hubMac" lay-verify="mac" placeholder="CC:1B:E0:E0:1B:04" value='<%= hubMac %>' class="layui-input">
+                                    <input type="text" <%- cid%> name="hubMac" lay-verify="hubMac" placeholder="CC:1B:E0:E0:1B:04" value='<%= hubMac %>' class="layui-input">
                                 </div>
                             </div>
 
@@ -49,14 +49,14 @@ module.exports.liItem = ` <li class="hub-item" data-cid=<%= cid %> >
                             <div class="layui-form-item">
                                 <label class="layui-form-label">Password</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" <%- cid%> name="password" lay-verify="required" placeholder="tester" value="" class="layui-input">
+                                    <input type="text" <%- cid%> name="password" lay-verify="required" placeholder="tester" value='<%= password %>' class="layui-input">
                                 </div>
                             </div>
 
                             <div class="layui-form-item test">
                                 <button class="layui-btn layui-btn-small" lay-submit lay-filter="testHub" lay-select=<%= cid %>  data-cid=<%- cid %>><%= test %></button>
                                 <div class="layui-input-inline">
-                                    <i data-cid=<%= cid %> >OK</i>
+                                    <i data-cid=<%= cid %> ></i>
                                 </div>
                             </div>
                             <div class="layui-form-item delete">

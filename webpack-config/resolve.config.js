@@ -25,7 +25,7 @@ module.exports = {
     /* logic */
     // cm: path.resolve(dirVars.logicDir, 'common.module'),
     cp: path.resolve(dirVars.logicDir, 'common.page'),
-    utils:path.resolve(dirVars.libsDir,'utils'),
+    utils: path.resolve(dirVars.libsDir, 'utils'),
     /* config */
     configModule: path.resolve(dirVars.configDir, 'common.config')
   },
@@ -33,4 +33,3 @@ module.exports = {
   // 当require的模块找不到时，尝试添加这些后缀后进行寻找
   extensions: [' ', '.js', '.css', '.less']
 };
-

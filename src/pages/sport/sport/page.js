@@ -5,11 +5,10 @@ const sportBodyViewStr = require('./template/sportBodyViewStr')
 const sportEventProxy = require('./events/sportEvents')
 const utils = require('publicDir/libs/utils/utils')
 const SportConfigView = require('./view/sportConfigView')
-import hubColl from './view/sportConfigView'
 const hubStr = require('./template/hubConfigItemStr')
 const perpheralStr = require('./template/peripheralsConfigItemStr')
-
-
+import hubColl from './view/sportConfigView'
+import {hubs} from 'cp'
 
 
 const SportBodyModel = Backbone.Model.extend({
@@ -52,11 +51,15 @@ const SportBodyView = Backbone.View.extend({
 			success: function () {
 				hubItemView = new SportConfigView({
 					el: $('.config-tip-hub'),
-					attributes:{'view':'hub'}
+					attributes: {
+						'view': 'hub'
+					}
 				})
 				perpheralItemView = new SportConfigView({
 					el: $('.config-tip-peripheral'),
-					attributes:{'view':'perpheral'}
+					attributes: {
+						'view': 'perpheral'
+					}
 				})
 			},
 			//右上角取消回调
@@ -67,7 +70,7 @@ const SportBodyView = Backbone.View.extend({
 			}
 		})
 	},
-	startWork:function(){
+	startWork: function () {
 		console.log(hubColl)
 	},
 	initialize: function () {

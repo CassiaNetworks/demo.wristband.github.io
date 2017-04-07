@@ -22,6 +22,7 @@ let HubItemView = Backbone.View.extend({
         'click .addhub': 'addhub',
         'click .test button': 'test',
         'click .delete button': 'delete',
+        'change input': 'autoVerify',
         'click .finsh': 'finsh',
         'click .reset': 'reset'
     },
@@ -37,7 +38,7 @@ let HubItemView = Backbone.View.extend({
                 let select = '',
                     verifyNameArr = ''
                 const verifys = {
-                    "local": ['hubIp', 'location'],
+                    "local": ['hubIp', 'location', 'hubMac'],
                     "remote": ['hubMac', 'server', 'developer', 'password', 'location']
                 }
                 let verifyElem = parent.find('*[lay-verify]')
@@ -74,7 +75,7 @@ let HubItemView = Backbone.View.extend({
                         return 'Mac输入错误'
                     }
                 },
-                mac: function (value) {
+                hubMac: function (value) {
                     const _value = $.trim(value)
                     if (_value === '') {
                         return 'Mac不能为空'
@@ -135,6 +136,7 @@ let HubItemView = Backbone.View.extend({
                     submodel.set(key, data[key])
                 }
                 submodel.set('method', data[cid])
+                submodel.set('verify', true)
                 console.log('hub配置信息', submodel.attributes)
                 this.model().test(submodel.toJSON())
 
@@ -158,14 +160,34 @@ let HubItemView = Backbone.View.extend({
                 for (let key in data) {
                     submodel.set(key, data[key])
                 }
-                debugger
+
                 this.model().test(submodel.toJSON())
                 return false;
             }.bind(this));
         }
         this.render()
     },
-    addhub: function () {
+    autoVerify: function (e) {
+        const cid = $(e.target).parents('.hub-item').data('cid')
+
+        debugger
+        if (this.model().get(cid).get('verify')) {
+            this.model().get(cid).set('verify', false)
+            this.model().get(cid).set('online', false)
+        }
+    },
+    addhub: function (e) {
+        const target = e.target
+        debugger
+        const cids = this.model().toJSON().filter(item => {
+            if (item.verify === false)
+                return item.cid
+        })
+        cids.forEach(item => {
+            $(`.test[data-cid='${item}'] button`).trigger('click')
+        })
+        if (!prevModel.get('verify'))
+            return
         const newModel = new this.attributes._model,
             lang = appModel.get(appModel.get('lang'))
         this.model().push(newModel)

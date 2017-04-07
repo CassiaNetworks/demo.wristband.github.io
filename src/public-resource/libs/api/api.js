@@ -30,6 +30,7 @@ export default (function (G) {
             // ... hehe, use url directly
             // cloud (use us/cn/auto)
             api.server = 'http://' + o.server
+            api.local = false
         } else {
             api.server = 'http://' + ({
                 'us': 'api1',
@@ -40,7 +41,7 @@ export default (function (G) {
         }
         api.developer = o.developer || 'tester'
         api.key = o.password || '10b83f9a2e823c47'
-        api.base64_dev_key = 'Basic ' + btoa(o.developer + ':' + o.key)
+        api.base64_dev_key = 'Basic ' + btoa(o.developer + ':' + api.key)
         api.hub = o.hubMac
         return api
     }
@@ -237,10 +238,14 @@ export default (function (G) {
 
     api.getInfo = function (o) {
         o = o || {}
+        debugger
         let _url = api.server
+        if (api.local) {
+            _url += `/cassia/info/`
+        } else {
+            _url += `/cassia/info/${api.hub}`
+        }
 
-        //local 可能有问题
-        _url += `/cassia/hubs/${api.hub}`
         $.ajax({
             type: 'get',
             url: _url,

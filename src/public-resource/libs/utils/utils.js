@@ -1,4 +1,7 @@
 import lang from '../../../pages/sport/sport/page'
+import {
+    hubs
+} from 'cp'
 exports.changeLang = function (jsonObj) {
     let _lang = jsonObj || lang
     $('[i18n]').each(function () {
@@ -27,4 +30,10 @@ exports.trimeClone = function (obj) {
         data[key] = $.trim(_obj[key])
     }
     return data
+}
+
+
+exports.hubInit = function (model, collection, method) {
+    console.log(method)
+    // debugger
 }
