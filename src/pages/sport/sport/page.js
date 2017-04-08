@@ -71,7 +71,7 @@ const SportBodyView = Backbone.View.extend({
 		})
 	},
 	startWork: function () {
-		console.log(hubColl)
+		
 	},
 	initialize: function () {
 		this.render()

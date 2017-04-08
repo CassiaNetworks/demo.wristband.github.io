@@ -1,6 +1,23 @@
+const api = require('publicDir/libs/api/api')()
 var hubConfig = require('../../config/hubConfig.json')
 let Hub = function (config) {
     config = config || {}
+    let task = []
+    const use = function () {
+            if (this.info.method === '1') {
+                if ($.now() - this.info.tokenTime < this.info.tokenExpire * 1000) {
+                    
+                } else {
+                    api.oauth2(this.info)
+                }
+
+            }
+
+            this.next()
+            return this
+        },
+        self = this
+    task.push(use)
     this.info = {
         method: config.method || hubConfig.info.method,
         cloundAddress: config.server || hubConfig.info.cloundAddress,
@@ -53,6 +70,15 @@ let Hub = function (config) {
             }
         }
     }
+    setTimeout(self.next, 0)
+}
+Hub.prototype.next = function () {
+    const fn = this.tasks.shift()
+    fn && fn()
+}
+Hub.prototype.scan = function (o) {
+    o = o || {}
+
 }
 
 

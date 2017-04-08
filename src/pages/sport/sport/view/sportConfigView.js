@@ -5,7 +5,11 @@ const perItem = require('../models/peripheralitemmodel')
 const utils = require('utils/utils')
 let layuis = require('cp')
 import appModel from '../page'
-
+import {
+    hubs,
+    peripherals
+} from 'cp'
+import Hub from 'publicDir/libs/hubs/hub'
 const hubItemCollection = new hubItem.Collection
 const perItemCollection = new perItem.Collection
 
@@ -20,9 +24,8 @@ let HubItemView = Backbone.View.extend({
     // model:new hubItem.Collection,
     events: {
         'click .addhub': 'addhub',
-        'click .test button': 'test',
+        // 'click .test button': 'test',
         'click .delete button': 'delete',
-        'change input': 'autoVerify',
         'click .finsh': 'finsh',
         'click .reset': 'reset'
     },
@@ -32,6 +35,12 @@ let HubItemView = Backbone.View.extend({
             this.attributes._model = hubItem.Model
             this.attributes.select = 'ul.config-tip-hub li.addhub'
             this.attributes['template'] = _.template(hubConfigItemStr.liItem)
+            this.attributes['footer'] = hubConfigItemStr.footer
+
+            this.listenTo(this.model(), 'change', function () {
+
+            })
+            //根据radio的值修改验证规则
             layuis.form.on(`radio`, function (data) {
                 const cid = $(this).attr('name'),
                     parent = $(`li[data-cid='${cid}']`)
@@ -41,6 +50,11 @@ let HubItemView = Backbone.View.extend({
                     "local": ['hubIp', 'location', 'hubMac'],
                     "remote": ['hubMac', 'server', 'developer', 'password', 'location']
                 }
+
+                // const model = self.model().get(cid)
+                // model.set('verify',false)
+                // model.set('online',false)
+
                 let verifyElem = parent.find('*[lay-verify]')
                 verifyElem.removeAttr('lay-verify').addClass('layui-bg-gray layui-disabled')
                 if (data.value === '0') {
@@ -132,19 +146,19 @@ let HubItemView = Backbone.View.extend({
                     cid = e.elem.dataset.cid,
                     submodel = this.model().get(cid)
 
-                for (let key in data) {
-                    submodel.set(key, data[key])
-                }
+                submodel.set(data)
                 submodel.set('method', data[cid])
                 submodel.set('verify', true)
+                submodel.set('online', false)
                 console.log('hub配置信息', submodel.attributes)
-                this.model().test(submodel.toJSON())
+                this.model().test(submodel)
 
                 return false;
             }.bind(this));
 
 
         } else {
+            this.attributes['footer'] = peripheralsConfigItemStr.footer
             this.attributes['template'] = peripheralsConfigItemStr.liItem
             this.attributes._model = perItem.Model
             this.attributes.select = 'ul.config-tip-peripheral li.addhub'
@@ -160,8 +174,7 @@ let HubItemView = Backbone.View.extend({
                 for (let key in data) {
                     submodel.set(key, data[key])
                 }
-
-                this.model().test(submodel.toJSON())
+                submodel.set('verify', true)
                 return false;
             }.bind(this));
         }
@@ -177,17 +190,17 @@ let HubItemView = Backbone.View.extend({
         }
     },
     addhub: function (e) {
-        const target = e.target
-        debugger
-        const cids = this.model().toJSON().filter(item => {
-            if (item.verify === false)
-                return item.cid
-        })
-        cids.forEach(item => {
-            $(`.test[data-cid='${item}'] button`).trigger('click')
-        })
-        if (!prevModel.get('verify'))
-            return
+        if ($(e.target).attr('alt') === 'add') {
+            const models = this.model().models,
+                length = this.model().length,
+                cid = models[length - 1].cid,
+                $prevTest = $(`.test button[data-cid='${cid}']`)
+            $prevTest.trigger('click')
+
+            if (!models[length - 1].get('verify'))
+                return
+        }
+
         const newModel = new this.attributes._model,
             lang = appModel.get(appModel.get('lang'))
         this.model().push(newModel)
@@ -205,7 +218,59 @@ let HubItemView = Backbone.View.extend({
 
     },
     finsh: function (e) {
-        this.model().test()
+        const collection = this.model()
+        if ($(e.target).hasClass('per')) {
+            debugger
+            $(`button[lay-filter='testPer']`).trigger('click')
+            const verify = collection.pluck('verify')
+            if (verify.indexOf(false) === -1) {
+                peripherals.length = 0
+                let devices = []
+                let emptyMacDevices = []
+                let emptyMacName = [],
+                    temp
+                collection.toJSON().forEach(item => {
+                    temp = _.pick(item, 'name', 'mac')
+                    devices.push(temp)
+                    if (item.mac === '') {
+                        emptyMacDevices.push(temp)
+                        emptyMacName.push(item.name)
+                    }
+                })
+                Array.prototype.push.apply(peripherals, emptyMacDevices)
+                for (let item of devices) {
+                    if (emptyMacName.indexOf(item.name) === -1) {
+                        peripherals.push(item)
+                    }
+                }
+
+                layui.layer.closeAll()
+            }
+            console.log(peripherals)
+            return
+        }
+        $('.config-tip-hub .test button').trigger('click')
+
+        clearInterval(hubs.timer)
+        hubs.timer = setTimeout(function () {
+            const verify = collection.pluck('verify')
+            const online = collection.pluck('online')
+            if (verify.indexOf(false) === -1 && online.indexOf(false) === -1) {
+                const allHub = collection.toJSON()
+                for (let item of allHub) {
+                    const hub = new Hub(item)
+                    hubs.hubs[item.hubMac] = hub
+                    hubs.count++
+                }
+
+                clearInterval(hubs.timer)
+                layui.layer.closeAll()
+            }
+        }, 1000)
+        // this.model().models.forEach(item=>{
+        //     this.model().test(item.toJSON())
+        // })
+
     },
     reset: function (e) {
         debugger
@@ -218,7 +283,7 @@ let HubItemView = Backbone.View.extend({
         this.model().models.forEach(function (item) {
             str += self.attributes.template(_.defaults({}, item.toJSON(), lang))
         })
-        str += hubConfigItemStr.footer
+        str += self.attributes.footer
         this.$el.html(str)
         layuis.form.render()
         // const $icon = this.$el.find('.layui-anim.layui-icon')
