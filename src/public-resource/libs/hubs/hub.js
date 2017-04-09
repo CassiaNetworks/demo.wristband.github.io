@@ -2,22 +2,7 @@ const api = require('publicDir/libs/api/api')()
 var hubConfig = require('../../config/hubConfig.json')
 let Hub = function (config) {
     config = config || {}
-    let task = []
-    const use = function () {
-            if (this.info.method === '1') {
-                if ($.now() - this.info.tokenTime < this.info.tokenExpire * 1000) {
-                    
-                } else {
-                    api.oauth2(this.info)
-                }
-
-            }
-
-            this.next()
-            return this
-        },
-        self = this
-    task.push(use)
+    this.task = [this.use, this.notify]
     this.info = {
         method: config.method || hubConfig.info.method,
         cloundAddress: config.server || hubConfig.info.cloundAddress,
@@ -26,7 +11,8 @@ let Hub = function (config) {
         ip: config.hubIp || '',
         location: config.location,
         mac: config.hubMac,
-        token: '',
+        access_token: '',
+        authorization: '',
         tokenExpire: hubConfig.info.tokenExpire,
         tokenTime: 0,
         version: ''
@@ -44,14 +30,8 @@ let Hub = function (config) {
         doing: { //正在做什么
             scan: 2, //0:芯片0扫描;1:芯片1扫描;2代表停止扫描
             notify: false,
-            chip0: {
-                connecting: false,
-                mac: '' //正在连接设备的mac
-            },
-            chip1: {
-                connecting: false,
-                mac: ''
-            }
+            connecting: false,
+            mac: '' //正在连接设备的mac
         }
     }
     this.connetedPeripherals = { //已连接设备
@@ -70,14 +50,45 @@ let Hub = function (config) {
             }
         }
     }
-    setTimeout(self.next, 0)
+    setTimeout(this.next, 0)
 }
+Hub.prototype.use = (function () {
+    let times = 1, self = this
+    return function () {
+        if (self.info.method === '1') {
+            if ($.now() - self.info.tokenTime > self.info.tokenExpire * 1000 && times < 3) {
+                api.oauth2(self.info).done(function () {
+                    times = 1
+                }).fail(function () {
+                    times++
+                    self.task.unshift(self.use)
+                }).always(function () {
+                    self.next()
+                })
+            }
+        } else {
+            self.next()
+        }
+        return self
+    }
+})()
+
+Hub.prototype.notify = function (toggle, notifyHandle) {
+    this.status.doing.notify = true
+    api.notify(toggle, this.info)
+    api.on('notify', function () {
+        notifyHandle.forEach(item => {
+            item(arguments)
+        })
+    })
+}
+
 Hub.prototype.next = function () {
     const fn = this.tasks.shift()
-    fn && fn()
+    fn && fn.apply(this, arguments)
 }
-Hub.prototype.scan = function (o) {
-    o = o || {}
+Hub.prototype.scan = function (chip) {
+    chip = chip || 0
 
 }
 
