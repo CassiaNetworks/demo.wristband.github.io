@@ -1,11 +1,15 @@
-const api = require('publicDir/libs/api/api')()
+const api = require('publicDir/libs/api/api')
 var hubConfig = require('../../config/hubConfig.json')
 let Hub = function (config) {
     config = config || {}
     this.task = [this.use, this.notify]
+    this.output = {
+        scan: '',
+        notify: ''
+    }
     this.info = {
         method: config.method || hubConfig.info.method,
-        cloundAddress: config.server || hubConfig.info.cloundAddress,
+        server: config.server || hubConfig.info.cloundAddress,
         developer: config.developer || hubConfig.info.developer,
         password: config.password || hubConfig.info.password,
         ip: config.hubIp || '',
@@ -14,8 +18,7 @@ let Hub = function (config) {
         access_token: '',
         authorization: '',
         tokenExpire: hubConfig.info.tokenExpire,
-        tokenTime: 0,
-        version: ''
+        tokenTime: 0
     }
     this.config = {
         maxConnected: config.maxConnected || hubConfig.config.maxConnected,
@@ -29,7 +32,6 @@ let Hub = function (config) {
         chip1Conn: 0,
         doing: { //正在做什么
             scan: 2, //0:芯片0扫描;1:芯片1扫描;2代表停止扫描
-            notify: false,
             connecting: false,
             mac: '' //正在连接设备的mac
         }
@@ -53,7 +55,8 @@ let Hub = function (config) {
     setTimeout(this.next, 0)
 }
 Hub.prototype.use = (function () {
-    let times = 1, self = this
+    let times = 1,
+        self = this
     return function () {
         if (self.info.method === '1') {
             if ($.now() - self.info.tokenTime > self.info.tokenExpire * 1000 && times < 3) {
@@ -73,14 +76,14 @@ Hub.prototype.use = (function () {
     }
 })()
 
-Hub.prototype.notify = function (toggle, notifyHandle) {
+Hub.prototype.notify = function (toggle) {
     this.status.doing.notify = true
-    api.notify(toggle, this.info)
-    api.on('notify', function () {
-        notifyHandle.forEach(item => {
-            item(arguments)
-        })
-    })
+    api.notify(toggle, this)
+    // api.on('notify', function () {
+    //     notifyHandle.forEach(item => {
+    //         item(arguments)
+    //     })
+    // })
 }
 
 Hub.prototype.next = function () {
@@ -89,6 +92,19 @@ Hub.prototype.next = function () {
 }
 Hub.prototype.scan = function (chip) {
     chip = chip || 0
+    api.scan(this, chip)
+
+}
+
+
+Hub.prototype.scan = function (chip) {
+    chip = chip || 0
+    api.scan(this, chip)
+
+}
+
+Hub.prototype.conn = function (o) {
+    api.conn(this, o)
 
 }
 

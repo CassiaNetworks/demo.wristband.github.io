@@ -1,10 +1,16 @@
 {
     "info": {
         "method": 0,
-        "cloundAddress": "demo.cassianetworks.com",
+        "server": "demo.cassianetworks.com",
         "developer": "tester",
         "password": "10b83f9a2e823c47",
-        "tokenExpire": 3000
+        "tokenExpire": 3000,
+        "ip": "",
+        "location": "",
+        "mac": "",
+        "access_token": "",
+        "authorization": "",
+        "tokenTime": ""
     },
     "config": {
         "maxConnected": 14,

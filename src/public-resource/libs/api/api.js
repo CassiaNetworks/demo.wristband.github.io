@@ -4,17 +4,16 @@
 export default (function () {
     let api = {}
     let __es = function (target, url, fn) {
-        let es = target.es = new EventSource(String(url));
+        let es = target = new EventSource(String(url));
         es.onmessage = function (event) {
             fn && fn(event)
         }
     }
     __es.close = function (target) {
-        let es = target.es;
+        let es = target;
         if (es && es.onmessage) {
             es.close();
             es = es.onmessage = null;
-            target.es = null;
         }
     }
 
@@ -26,7 +25,7 @@ export default (function () {
             o.authorization = 'Bearer ' + (d || '')
         }
 
-       return $.ajax({
+        return $.ajax({
             type: 'post',
             url: o.server + '/oauth2/token',
             headers: {
@@ -64,11 +63,11 @@ export default (function () {
         return api
     }
 
-    api.scan = function (chip) {
-        __es(api.scan, api.server + '/gap/nodes/?event=1&mac=' + api.hub + '&chip=' + (chip || 0) + '&access_token=' + api.access_token,
+    api.scan = function (hub, chip) {
+        __es(hub.output.scan, hub.info.server + '/gap/nodes/?event=1&mac=' + hub.info.hub + '&chip=' + (chip || 0) + '&access_token=' + hub.info.access_token,
             function (event) {
 
-                api.trigger('scan', [api.hub, event.data])
+                api.trigger('scan', [hub.info.mac, event.data])
             });
         return api
     };
@@ -76,13 +75,13 @@ export default (function () {
         __es.close(api.scan)
         return api
     };
-    api.conn = function (o) {
+    api.conn = function (hub, o) {
         o = o || {}
         $.ajax({
             type: 'post',
-            url: api.server + '/gap/nodes/' + o.node + '/connection?mac=' + (o.hub || api.hub),
-            headers: api.local ? '' : {
-                'Authorization': api.authorization
+            url: hub.info.server + '/gap/nodes/' + o.node + '/connection?mac=' + (o.hub || hub.info.mac),
+            headers: hub.info.method === '0' ? '' : {
+                'Authorization': hub.info.authorization
             },
             data: {
                 "type": o.type || "public"
@@ -188,11 +187,11 @@ export default (function () {
         return api
     }
 
-    api.notify = function (toggle,info) {
-        if (toggle && !api.notify.es) {
-            __es(api.notify, api.server + '/gatt/nodes/?event=1&mac=' + api.hub + '&access_token=' + api.access_token,
+    api.notify = function (toggle, hub) {
+        if (toggle && !hub.output.notify) {
+            __es(hub.output.notify, hub.info.server + '/gatt/nodes/?event=1&mac=' + hub.info.mac + '&access_token=' + hub.info.access_token,
                 function (event) {
-                    api.trigger('notify', [info.hubMac, event.data])
+                    api.trigger('notify', [hub.info.mac, event.data])
                 })
         } else {
             __es.close(api.notify)
@@ -229,5 +228,4 @@ export default (function () {
         return api
     }
     return api
-    // G.api = api
-});
+})();
