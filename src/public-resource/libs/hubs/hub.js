@@ -4,22 +4,31 @@ let Hub = function (config) {
     config = config || {}
     this.task = [this.use, this.notify]
     this.output = {
-        scan: '',
-        notify: ''
-    }
-    this.info = {
-        method: config.method || hubConfig.info.method,
-        server: config.server || hubConfig.info.cloundAddress,
-        developer: config.developer || hubConfig.info.developer,
-        password: config.password || hubConfig.info.password,
-        ip: config.hubIp || '',
-        location: config.location,
-        mac: config.hubMac,
-        access_token: '',
-        authorization: '',
-        tokenExpire: hubConfig.info.tokenExpire,
-        tokenTime: 0
-    }
+            scan: '',
+            notify: ''
+        },
+        this._escapeTime = {
+            token: 0,
+            devices: 0,
+            scanData: 0,
+            sort:0
+        },
+        this.scanData = {
+            origin: {},
+            sort: []
+        },
+        this.info = {
+            method: config.method || hubConfig.info.method,
+            server: config.server || hubConfig.info.cloundAddress,
+            developer: config.developer || hubConfig.info.developer,
+            password: config.password || hubConfig.info.password,
+            ip: config.hubIp || '',
+            location: config.location,
+            mac: config.hubMac,
+            access_token: '',
+            authorization: '',
+            interval: hubConfig.info.tokenExpire,
+        }
     this.config = {
         maxConnected: config.maxConnected || hubConfig.config.maxConnected,
         maxConnected0: config.maxConnected0 || hubConfig.config.maxConnected0,
@@ -41,14 +50,14 @@ let Hub = function (config) {
         CheckConnTimeExp: 0, //时间后检查
         Peripherals: { //
             peripheralsMac: {
-                mac: '',
+                node: '',
                 name: '',
                 type: '',
                 chipId: null, //连接的芯片
-                notify: '', //是否通知
-                expectedNotify: '', //期望是否通知
-                checkNotifyTime: 3, //
-                checkNotifyTimeExp: 0 //时间后检查
+                // notify: '', //是否通知
+                // expectedNotify: '', //期望是否通知
+                // checkNotifyTime: 3, //
+                // checkNotifyTimeExp: 0 //时间后检查
             }
         }
     }
