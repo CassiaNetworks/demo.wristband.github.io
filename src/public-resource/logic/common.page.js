@@ -348,19 +348,24 @@ let hubs = {
         }
 
         let result = {},
-            temp = []
+            allScanData = [],
+            temp, len2 = Object.keys(filtedData).length,
+            resultNode = []
         for (let mac in filtedData) {
-            temp.concat(filtedData[mac])
+            allScanData.concat(filtedData[mac])
         }
-        temp = _.sortBy(temp, 'avg')
-        for (let mac in filtedData){
-            
+        allScanData = _.sortBy(allScanData, 'avg')
+
+        for (let i = 0, len = allScanData.length; i < len; i++) {
+            temp = allScanData[i]
+            if (resultNode.length < len2 && !result[allScanData[i].mac] && resultNode.indexOf(allScanData[i].node) === -1) {
+                result[allScanData[i].mac] = allScanData[i]
+                resultNode.push(allScanData[i].node)
+            } else {
+                break
+            }
         }
-
-
-
-
-
+        return result
     },
     __slectHubByNode(node, option) {
 
