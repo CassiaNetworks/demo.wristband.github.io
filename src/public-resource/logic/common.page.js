@@ -7,17 +7,8 @@ const hubConfig = require('../config/hubConfig.json')
 
 
 hubs.scanHandle(fnArr).notifyHandle(fnArr)
-hubs.add({
-    mac: ''
-}).init({
-    mac: ''
-}).oauth({
-    mac: ''
-})
+hubs.add(mac).init(mac)
 
-hubs.on('oauth', fn1)
-hubs.on('scan', fn2)
-hubs.on('notify', fn3)
 hubs.on('conn', fn4)
 
 
@@ -30,39 +21,27 @@ hubs.on('conn', fn4)
 let hubs = {
     conut: 0,
     timer: null, //检查hub在线定时器
-    hubs: {},
-    connetedPeripherals: {},
-    interval: {
+    hubs: {}, //所有hub
+    scanHubs: [], //正在扫描的hub
+    connHubs: [],
+    conning: [],
+    writeHubs: [],
+    connetedPeripherals: {}, //所有连接的设备
+    interval: { //定时任务
         timer: null,
         tasks: []
     },
-    /**
-     * 定时任务
-     * {fn:,
-     * arg:,
-     * context:,
-     * escapeTime,
-     * time   秒
-     * 
-     * 
-     * 
-     * }
-     */
-    // next() {
-    //     const arg = Array.prototype.slice(Array, arguments)
-    //     const fn = arg[0].shift()
-    //     fn && fn.apply(this, arguments)
-    // },
-
     init(mac) {
         this.oauth(mac)
-        this.on('oauth', function () {
-            hubs.hubs[mac].scan(mac, 0)
+        this.on('oauth', function (o) {
+            hubs.hubs[mac].scan(o.mac, 0)
+            hubs.__intervalTask()
         })
-        this.on('scan', function () {
-            hubs.hubs[mac].notify(mac)
-        });
-        this.__intervalTask()
+        this.on('scanData', function (o) {
+            hubs.hubs.notify(o.mac)
+            hubs._scanDataColl(o)
+        })
+
         return this
     },
     add(o = {}) {
@@ -88,11 +67,6 @@ let hubs = {
             _add()
         }
         return this
-        // this.init({
-        //         mac
-        //     })
-        // setTimeout(this.next, 0)
-
     },
     remove(mac) {
         if (this.hubs[mac])
@@ -131,6 +105,7 @@ let hubs = {
             },
             context: this,
             success: function (data) {
+                hub.status.online = true
                 hub.access_token = data.access_token
                 hub.tokenExpire = data.expires_in
                 hub._escapeTime.token = 0
@@ -158,79 +133,77 @@ let hubs = {
         }
         this.__es(hub.output.scan, 'scan', hub.server + '/gap/nodes/?event=1&mac=' + mac + '&chip=' + chip + '&access_token=' + hub.info.access_token,
             function (event) {
-                let data = event.data
-                if (data.match(/keep-alive/i))
+                if (hubs.scanHubs.indeOf(mac) === -1) {
+                    hubs.scanHubs.push(mac)
+                }
+                if (event.data.match(/keep-alive/i))
                     return
-                hubs.trigger('scan', {
+                hubs.trigger('scanData', {
                     mac,
                     chip,
-                    data
+                    data: event.data
                 })
             });
 
 
         return this
     },
-    scanHandle(fnArr) {
-        hubs.on('scan', function (mac, data) {
-            if (data.match(/keep-alive/i)) {
-                return
-            }
-            fnArr.forEach(item => {
-                item && item(mac, data)
-            })
-        })
-    },
-    notifyHandle(fnArr) {
-        hubs.on('notify', function (mac, data) {
-            if (data.match(/keep-alive/i)) {
-                return
-            }
-            fnArr.forEach(item => {
-                item && item(mac, data)
-            })
-        })
-    },
+    // scanHandle(fnArr) {
+    //     hubs.on('scan', function (mac, data) {
+    //         fnArr.forEach(item => {
+    //             item && item(mac, data)
+    //         })
+    //     })
+    // },
+    // notifyHandle(fnArr) {
+    //     hubs.on('notify', function (mac, data) {
+    //         if (data.match(/keep-alive/i)) {
+    //             return
+    //         }
+    //         fnArr.forEach(item => {
+    //             item && item(mac, data)
+    //         })
+    //     })
+    // },
     notify(mac) {
         const hub = this.hubs[mac]
         if (!this.__online(mac)) {
-            return
+            return this
         }
         if (!hub.output.notify) {
             this.__es(hub.output.notify, hub.info.server + '/gatt/nodes/?event=1&mac=' + hub.info.mac + '&access_token=' + hub.info.access_token,
                 function (event) {
-                    let data = event.data
+                    if (event.data.match(/keep-alive/)) {
+                        return
+                    }
                     hubs.trigger('notify', {
                         mac,
-                        data
+                        data: event.data
                     })
                 })
         }
         return this
+    },
+    __delete(item, Arr) {
+        const index = Arr.indeOf(item)
+        if (index === -1)
+            return
+        else {
+            return Arr.splice(index, 1)
+        }
     },
     close(o) {
         o = o || {
             mac: '',
             event: ''
         }
-        if (o.event === '') {
+        if (!o.event) {
             return
         }
-
-        function _close(o, hubs, self) {
-            hubs[o.mac].output[o.event] && hubs[o.mac].output[o.event].close()
-            hubs[o.mac].output[o.event] = null
-        }
-        // _iterate(o, this.hubs, _close, this)
-        _close(o, this.hubs, this)
-        // this.off(obj.event)
+        this.hubs[o.mac].output[o.event] && this.hubs[o.mac].output[o.event].close()
+        this.hubs[o.mac].output[o.event] = null
+        this.__delete(o.mac, this.scanHubs)
         return this
-    },
-    __resetScanData(mac) {
-        this.hubs[mac].scanData = {
-            origin: {},
-            sort: []
-        }
     },
     /**
      * 定时任务
@@ -241,7 +214,7 @@ let hubs = {
         if (this.interval.timer) {
             return
         }
-        this.tasks = [{
+        this.interval.tasks = [{
             fn: this.oauth,
             interval: 3000,
             escapeTime: 'token',
@@ -252,14 +225,14 @@ let hubs = {
             escapeTime: 'devices',
             silent: true
         }, {
-            fn: this.__resetScanData,
-            interval: 4,
-            escapeTime: 'resetScanData',
+            fn: this.__clearZombyScanData,
+            interval: 1,
+            escapeTime: 'clearZombyScanData',
             silent: true
         }, {
             fn: this.__sortByRssi,
             interval: 1,
-            escapeTime: 'sort',
+            escapeTime: 'sortByRssi',
             silent: true
         }]
         this.interval.timer = setInterval(function () {
@@ -267,7 +240,7 @@ let hubs = {
                 let hub = this.hubs[mac]
                 this.interval.tasks.forEach(function (item) {
                     if (hub._escapeTime[item.escapeTime]++ === item.interval) {
-                        item.fn && item.fn(mac, {
+                        item.fn && item.fn.call(this, mac, {
                             silent: item.silent
                         })
                     }
@@ -276,95 +249,202 @@ let hubs = {
         }.bind(this), 1000)
         return this
     },
+    __clearZombyScanData(mac, option) {
+        option = option || {
+            silent: false
+        }
+        const origin = this.hubs[mac].scanData.origin
+        for (let node in origin) {
+            if (origin[node].life-- === 0) {
+                this.__syncDelScanData(mac, node)
+                if (!option.silent) {
+                    hubs.trigger('clearZombyScanData', {
+                        node,
+                        mac
+                    })
+                }
+            }
+        }
+        this.hubs[mac]._escapeTime.clearZombyScanData = 0
 
-    __sortByRssi(mac) {
-        const origin = this.hubs[mac].origin
-        const stooges = _.values(origin)
-        this.hubs[mac].sort = _.sortBy(stooges, 'avg')
-        return this.hubs[mac].sort
     },
-    __slectHub() {
+    __hubAvailable(mac) {
+        if (this.hubs[mac].status.conn < hubs[mac].config.maxConnected) {
+            console.warn(`hub ${mac} has connected max`)
+        }
+        this.trigger('maxConnected', {
+            mac
+        })
+        return this.__online(mac) && this.connHubs.indexOf(mac) === -1 && this.hubs[mac].status.conn < hubs[mac].config.maxConnected
+    },
+    __syncDelScanData(mac, node) {
+        const origin = this.hubs[mac].scanData.origin,
+            sort = this.hubs[mac].scanData.sort
+        let index
 
+        origin[node] = null
+        //删除sort.name中的相应值
+        if (node.name) {
+            index = _.findIndex(sort.name, function (item) {
+                return item.node === node
+            })
+            if (index > -1) {
+                sort.name[name].splice(index, 1)
+            }
+        }
+        //删除sort.rssi中相应值
+        index = _.findIndex(sort.rssi, function (item) {
+            return item.node === node
+        })
+        if (index > -1) {
+            sort.rssi.splice(index, 1)
+        }
+    },
+    __sortByRssi(mac, option) {
+        option = option || {
+            silent: false
+        }
+        this.hubs[mac].sort.rssi = _.sortBy(this.hubs[mac].sort.rssi, 'avg')
+        for (let name in this.hubs[mac].sort.name) {
+            this.hubs[mac].sort.name[name] = _.sortBy(this.hubs[mac].sort.name[name], 'avg')
+        }
+        if (!option.silent) {
+            hubs.trigger('sortByRssi')
+        }
+    },
+
+    __perAvailable(node) {
+        return this.conning.indexOf(node) === -1
     },
     /**
      * 
      * 
-     * @param {obj} data 
-     * @param {str} mac 
-     * @param {obj} hub 
-     * @param {obj} rule 
+     * @param {any} [name=[]] 
+     * @param {any} [option={}] 
+     * @returns 
      */
-    _scanDataColl(data, hub, rule) {
-        const node = data.bdaddrs[0].bdaddr,
-            name = data.name,
-            rssi = data.rssi,
-            type = data.bdaddrs[0].bdaddrType
+    __slectHubByName(name, option) {
+        const hubs = this.hubs
+        option = option || {
+            available: true,
+            rssiAvg: -80
+        }
+        //存储当前 所有/可用 hub扫描到的名为 name 的设备
+        let availableHubs = []
+        for (let mac in hubs) {
+            if (option.available) {
+                if (this.__hubAvailable(mac))
+                    availableHubs.push(mac)
+            } else {
+                availableHubs.push(mac)
+            }
+        }
 
-        function initNode(node, scanData) {
-            if (!scanData[node])
+        let filtedData = {}
+        for (let mac of availableHubs) {
+            filtedData[mac] = this.hubs[mac].scanData.sort.rssi.filter(function (item) {
+                return item.avg > option.rssiAvg && name.indexOf(item.name) > -1 && this.__perAvailable(item.node)
+            })
+        }
+
+        let result = {},
+            temp = []
+        for (let mac in filtedData) {
+            temp.concat(filtedData[mac])
+        }
+        temp = _.sortBy(temp, 'avg')
+        for (let mac in filtedData){
+            
+        }
+
+
+
+
+
+    },
+    __slectHubByNode(node, option) {
+
+    },
+
+    // {
+    //     mac,
+    //     chip,
+    //     data: event.data
+    // }
+    _scanDataColl(o) {
+        const node = o.data.bdaddrs[0].bdaddr,
+            name = o.data.name,
+            rssi = parseInt(o.data.rssi),
+            type = o.data.bdaddrs[0].bdaddrType,
+            mac = o.mac
+
+        function initNode(node, scanData, callback) {
+            if (!scanData[node]) {
                 scanData[node] = {
                     rssi: [],
                     node: '',
-                    max: -500,
+                    mac: '',
+                    max: -200,
                     min: 0,
-                    avg: 0
+                    avg: 0,
+                    name: '',
+                    type: '',
+                    lift: 4,
+                    times: 0
                 }
+                callback && callback.call(this)
+            }
         }
 
         function addData(node, hub) {
+            let index
             initNode(node, hub.scanData.origin)
+            const len = hubs[node].rssi.push(rssi)
             hub.scanData.origin[node].node = node
-            const len = hubs[node].rssi.push(parseInt(rssi))
+            hub.scanData.origin[node].mac = mac
             hub.scanData.origin[node].max = Math.max(rssi, hub.scanData.origin[node].max)
             hub.scanData.origin[node].min = Math.min(rssi, hub.scanData.origin[node].min)
             hub.scanData.origin[node].avg = (hub.scanData.origin[node].avg * (len - 1) + rssi) / len
-            hub.scanData.origin[node].name = /unknown/.match(name) ? '' : name
+            hub.scanData.origin[node].name = name.match(/unknown/) ? '' : name
             hub.scanData.origin[node].type = type
-            hub.scanData.origin[node].mac = hub.info.mac
-        }
+            hub.scanData.origin[node].life = 4 //生命周期是4秒
+            hub.scanData.origin[node].times = len
+            hub.scanData.origin[node].free = true
 
-        if (rule.filter === 'name' && rule.reg.match(name)) {
-            addData(node, this.hubs)
-        } else if (rule.filter === 'mac' && rule.reg.match(node)) {
-            addData(node, this.hubs)
-        } else {
-            addData(node, this.hubs)
-        }
-    },
-    __initScanData() {
-        this.once('scan', function () {
-            const mac = arguments[0],
-                chip = arguments[1],
-                data = JSON.parse(arguments[2]),
-                node = data.bdaddrs[0].bdaddr,
-                type = data.bdaddrs[0].bdaddrType,
-                name = data.name,
-                rssi = data.rssi
+            //更新hub.scanData.sort.name值
+            if (hub.scanData.origin[node].name) {
+                hub.scanData.sort.name[name] = []
+            } else {
+                index = _.findIndex(hub.scanData.sort.name, function (item) {
+                    return item.node === node
+                })
+                if (index === -1) {
+                    hub.scanData.sort.name[name].push(this.scanData.origin[node])
+                } else {
+                    hub.scanData.sort.name[name].splice(index, 1, hub.scanData.origin[node])
+                }
+            }
 
-            this._scanDataColl(data, this.hubs[mac], {
-                filter: 'name',
-                rule: /o.name/
+
+            //更新hub.scanData.sort.rssi值
+            index = _.findIndex(hub.scanData.sort.rssi, function (item) {
+                return item.node === node
             })
-        })
+            if (index === -1) {
+                hub.scanData.sort.rssi.push(this.scanData.origin[node])
+            } else {
+                hub.scanData.sort.rssi.splice(index, 1, hub.scanData.origin[node])
+            }
+
+        }
+        addData(node, this.hubs[mac])
     },
     __autoConn(name) {
         const o = this.__selectPerHub(name)
         this.__conn(o)
         this.on('connFin', this.conn())
     },
-    __selectPerHub(name) {
-        const hubs = this.hubs
-        let temp = []
-        for (let hub in hubs) {
-            temp.push(_.findWhere(hub, {
-                name: name
-            }))
-        }
-        return _.max(temp, function (item) {
-            return item.avg
-        })
 
-    },
     conn(o) {
         o = o || {
             mac: '',
@@ -389,6 +469,9 @@ let hubs = {
         } else if (!this.__online(mac)) {
             return
         }
+        if (this.connHubs.indeOf(mac) === -1) {
+            this.connHubs.push(mac)
+        }
         this.__conn(o)
         return this
     },
@@ -398,6 +481,10 @@ let hubs = {
             node = o.node,
             type = o.type,
             name = o.name
+        this.hubs[mac].status.doing.node = node
+        if (this.conning.indexOf(node) === -1) {
+            this.conning.push(node)
+        }
         $.ajax({
             type: 'post',
             url: hub.info.server + '/gap/nodes/' + o.node + '/connection?mac=' + o.mac,
@@ -410,7 +497,8 @@ let hubs = {
             context: this,
             success: function (data) {
                 this.addPer(o)
-                this.__changeConnSta(node, mac)
+
+                this.__syncDelScanData(mac, node)
                 this.trigger('conn', {
                     mac,
                     node,
@@ -420,6 +508,9 @@ let hubs = {
                 })
             },
             always: function () {
+                this.hubs[mac].status.doing.node = ''
+                this.__delete(node, this.conning)
+                this.__delete(mac, this.connHubs)
                 this.trigger('connFin', {
                     mac
                 })
@@ -455,15 +546,6 @@ let hubs = {
             }
         })
         return this
-    },
-    __changeConnSta(node, mac) {
-        const sort = this.hubs[mac].scanData.sort
-        for (let item of sort) {
-            if (item.node === node) {
-                item.conn = true
-                return
-            }
-        }
     },
     addPer(o) {
         o = o || {
@@ -559,7 +641,7 @@ let hubs = {
         return this
     },
     __online(mac) {
-        return !!this.hubs[mac] || !!this.connetedPeripherals[mac]
+        return !!this.hubs[mac] && this.hubs[mac].status.online || !!this.connetedPeripherals[mac]
     },
     __iterate(o, hubs, fn, context) {
         if (o.mac === 'all') {
