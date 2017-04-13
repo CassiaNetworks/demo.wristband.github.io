@@ -9,8 +9,7 @@
         "location": "",
         "mac": "",
         "access_token": "",
-        "authorization": "",
-        "tokenTime": ""
+        "authorization": ""
     },
     "config": {
         "maxConnected": 14,

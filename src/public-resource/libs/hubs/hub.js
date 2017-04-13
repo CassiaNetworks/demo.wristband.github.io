@@ -3,35 +3,37 @@ var hubConfig = require('../../config/hubConfig.json')
 let Hub = function (config) {
     config = config || {}
     this.output = {
-            scan: '',
-            notify: ''
-        },
-        this._escapeTime = {
-            token: 0,
-            devices: 0,
-            scanData: 0,
-            clearZombyScanData: 0,
-            sortByRssi: 0
-        },
-        this.scanData = {
-            origin: {},
-            sort: {
-                name: {},
-                rssi: []
-            }
-        },
-        this.info = {
-            method: config.method || hubConfig.info.method,
-            server: config.server || hubConfig.info.cloundAddress,
-            developer: config.developer || hubConfig.info.developer,
-            password: config.password || hubConfig.info.password,
-            ip: config.hubIp || '',
-            location: config.location,
-            mac: config.hubMac,
-            access_token: '',
-            authorization: '',
-            interval: hubConfig.info.tokenExpire,
+        scan: '',
+        notify: ''
+    }
+    this._escapeTime = {
+        token: 0,
+        devices: 0,
+        scanData: 0,
+        clearZombyScanData: 0,
+        sortByRssi: 0,
+        checkOnline: 0
+    }
+    this.scanData = {
+        origin: {},
+        sort: {
+            name: {},
+            rssi: []
         }
+    }
+
+    this.info = {
+        method: config.method || hubConfig.info.method,
+        server: config.server || hubConfig.info.cloundAddress,
+        developer: config.developer || hubConfig.info.developer,
+        password: config.password || hubConfig.info.password,
+        ip: config.hubIp || '',
+        location: config.location,
+        mac: config.hubMac,
+        access_token: '',
+        authorization: '',
+        interval: hubConfig.info.tokenExpire,
+    }
     this.config = {
         maxConnected: config.maxConnected || hubConfig.config.maxConnected,
         maxConnected0: config.maxConnected0 || hubConfig.config.maxConnected0,
@@ -42,7 +44,6 @@ let Hub = function (config) {
         conn: 0, //连接数量
         doing: { //正在做什么
             scan: 2, //0:芯片0扫描;1:芯片1扫描;2代表停止扫描
-            connecting: false,
             node: '' //正在连接设备的mac
         }
     }
