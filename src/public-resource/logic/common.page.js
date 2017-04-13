@@ -29,9 +29,9 @@ const bg = (function () {
         log() {
 
         },
-        table() {},
-        time() {},
-        timeEnd() {}
+        table() { },
+        time() { },
+        timeEnd() { }
     }
 })()
 const hubConfig = {
@@ -140,7 +140,7 @@ let hubs = {
         timer: null,
         tasks: []
     },
-    target: {},
+    target: { node: [], name: [] },
     init(mac) {
 
         const _init = function () {
@@ -157,8 +157,12 @@ let hubs = {
             this.on('scanData', function (o) {
                 hubs.__scanDataColl(o)
             })
-
-            this.on('disMac', hubs.__conn)
+            this.on('autoCon', function (o) {
+                hubs.__slectHubByName.call(this, o)
+                hubs.__slectHubByNode.call(this, o)
+            })
+            this.on('connByName', hubs.__autoConnByName)
+            this.on('connByNode', hubs.__autoConnByNode)
         }
         _.once(_init.bind(this))()
         this.oauth(mac)
@@ -217,19 +221,21 @@ let hubs = {
         }
         $.ajax({
             type: 'post',
-            url: hub.server + '/oauth2/token',
+            url: hub.info.server + '/oauth2/token',
             headers: {
-                'Authorization': 'Basic ' + btoa(hub.developer + ':' + hub.password)
+                'Authorization': 'Basic ' + btoa(hub.info.developer + ':' + hub.info.password)
             },
-            data: {
-                "grant_type": "client_credentials"
-            },
+            data: JSON.stringify({
+                'grant_type': 'client_credentials'
+            }),
+            contentType: 'application/json',
+            dataType: 'json',
             context: this,
             success: function (data) {
-                hub.access_token = data.access_token
-                hub.tokenExpire = data.expires_in
+                hub.info.access_token = data.access_token
+                hub.info.tokenExpire = data.expires_in
                 hub._escapeTime.token = 0
-                hub.authorization = 'Bearer ' + data.access_token
+                hub.info.authorization = 'Bearer ' + data.access_token
                 if (!option.silent) {
                     this.trigger('oauth', {
                         mac,
@@ -266,7 +272,8 @@ let hubs = {
             success: function (data) {
                 this.hubs[mac]._escapeTime.checkOnline = 0
                 this.hubs[mac].status.online = true
-                hubs.availableHubs.push(mac)
+                if (hubs.availableHubs.indexOf(mac) === -1)
+                    hubs.availableHubs.push(mac)
                 this.trigger('online', {
                     mac
                 })
@@ -389,7 +396,7 @@ let hubs = {
             silent: true
         }, {
             fn: this.__checkOnline,
-            interval: 10,
+            interval: 60,
             escapeTime: 'checkOnline',
             silent: true
         }, {
@@ -512,57 +519,59 @@ let hubs = {
      * @param {any} [option={}] 
      * @returns 
      */
-    __slectHubByName(name, option) {
-        const hubs = this.hubs
+    __slectHubByName(o, option) {
         option = option || {
             available: true,
             rssiAvg: -80
         }
+
         //存储当前 所有/可用 hub扫描到的名为 name 的设备
         let availableHubs = this.availableHubs
-        // for (let mac in hubs) {
-        //     if (option.available) {
-        //         if (this.__hubAvailable(mac))
-        //             availableHubs.push(mac)
-        //     } else {
-        //         availableHubs.push(mac)
-        //     }
-        // }
-        if (availableHubs.length === 0) {
-            return
+        const len = availableHubs.length, name = o.name
+        if (len === 0 || this.target.name.indexOf(name) === -1) {
+            return this
+        }
+
+        if (len === 1) {
+            const node = this.hubs[availableHubs[0]].scanData.sort.name[name][0]
+            this.trigger('connByName', { [availableHubs[0]]: node })
+            return this
         }
 
 
-        let filtedData = {}
+        let filtedData = {}, allScanData = [], sortByName
         for (let mac of availableHubs) {
-            filtedData[mac] = this.hubs[mac].scanData.sort.rssi.filter(function (item) {
-                return item.avg > option.rssiAvg && name.indexOf(item.name) > -1 && this.__perAvailable(item.node)
-            })
-        }
-
-        let result = {},
-            allScanData = [],
-            temp, len2 = Object.keys(filtedData).length,
-            resultNode = []
-        for (let mac in filtedData) {
+            sortByName = this.hubs[mac].scanData.sort.name[name]
+            for (let i = 0, len2 = Math.min(len, sortByName.length); i < len2; i++) {
+                if (this.__perAvailable(sortByName[i].node)) {
+                    filtedData[mac].push(sortByName[i])
+                }
+            }
             allScanData.concat(filtedData[mac])
         }
-        allScanData = _.sortBy(allScanData, 'avg')
+
+        let result = {}, node,
+            resultNode = []
+
+
 
         for (let i = 0, len = allScanData.length; i < len; i++) {
-            temp = allScanData[i]
-            if (resultNode.length < len2 && !result[allScanData[i].mac] && resultNode.indexOf(allScanData[i].node) === -1) {
-                result[allScanData[i].mac] = allScanData[i]
-                resultNode.push(allScanData[i].node)
-            } else {
-                break
+            node = allScanData[i]
+            if (resultNode.length < len && !result[node.mac] && resultNode.indexOf(node.node) === -1) {
+                result[node.mac] = node
+                resultNode.push(node.node)
             }
         }
-        this.trigger('disName', result)
+        this.trigger('connByName', result)
     },
-    __slectHubByNode(node, option) {
-        if (this.locationData[node]) {
-            this.trigger('disMac', this.locationData[node])
+    __slectHubByNode(node) {
+        const mac = node.mac,
+            availableHubs = this.availableHubs
+        if (this.target.node.indexOf(mac) === 1) {
+            return
+        }
+        if (availableHubs.indexOf(mac) > -1 && this.__perAvailable(node)) {
+            this.trigger('connByNode', this.locationData[node])
         }
     },
 
@@ -617,6 +626,7 @@ let hubs = {
             _node.times++;
             // _node.free = true
 
+            //更新location 数据
             if (!this.locationData[node]) {
                 this.locationData[node] = _node
             } else {
@@ -642,6 +652,11 @@ let hubs = {
                 }
             }
 
+            //triggle 发现要链接的name事件
+            if (realName) {
+                hubs.trigger('autoCon', { node: node, name: realName })
+            }
+
             //更新hub.scanData.sort.rssi值
             const _rssi = hub.scanData.sort.rssi
             index = _.findIndex(_rssi, function (item) {
@@ -656,25 +671,14 @@ let hubs = {
         }
         addData.call(this, node, this.hubs[mac])
     },
-    /**
-     * [__autoConn description]
-     * @param  {[Arr]} name [description]
-     * @return {[type]}      [description]
-     */
-    __autoConn(name) {
-        const self = this,
-            initScanData = function (name, self) {
-                this.on('disName', function (result) {
-                    for (let mac in result) {
-                        hubs.__conn(result[mac])
-                    }
-                })
-                this.on('scanData', hubs.__slectHubByName.bind(self, name))
-            }
-        _.once(initScanData.bind(this))(name, self)
-
+    __autoConnByName(o){
+        for(let mac in o){
+            hubs.__conn(o[mac])
+        }
     },
-
+    __autoConnByNode(o){
+         hubs.__conn(o)
+    },
     conn(o) {
         o = o || {
             mac: '',
@@ -682,8 +686,7 @@ let hubs = {
             type: '',
             name: ''
         }
-        const hub = this.hubs[o.mac],
-            mac = o.mac,
+        const mac = o.mac,
             node = o.node,
             type = o.type,
             name = o.name
@@ -955,7 +958,7 @@ let hubs = {
 _.defaults(hubs, Backbone.Events)
 
 const hub1 = {
-    "method": 0,
+    "method": 1,
     "server": "demo.cassianetworks.com",
     "developer": "tester",
     "password": "10b83f9a2e823c47",
