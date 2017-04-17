@@ -1,11 +1,13 @@
 import fire_static from 'publicDir/imgs/fire_static.jpg'
 import heart_staic from 'publicDir/imgs/heart_staic.jpg'
-import refresh from 'publicDir/imgs/refresh.jpg'
 import running_static from 'publicDir/imgs/running_static.jpg'
-
+import './dashboard.css'
 function dashboardStr(data) {
-    const str = `<li data-node='${data.node}'><h2>${data.name}</h2>
-					<p>累计步数 : <span>${data.totalStep}</span></p>
+    const str = `<li data-node='${data.node}'>
+					<h2>${data.userName}</h2>
+					<p class="loc">位置：<span ></span></p>
+					<p>累计步数 : <span class="totalStep">${data.totalStep}</span></p>
+					${data.say?"<input type = 'text' value='hello'><button class='send' data-node='"+data.node+"'>send</button>":''}
 					<div class="yellow">
 						<img src=${fire_static} alt="icon">
 						<p><span>${data.cal}</span>卡</p>

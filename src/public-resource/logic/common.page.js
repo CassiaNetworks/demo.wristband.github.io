@@ -1,4 +1,5 @@
 import Hub from 'publicDir/libs/hubs/hub'
+import hw330 from 'publicDir/libs/peripherals/hw330'
 
 const DEBUG = false
 const bg = (function () {
@@ -25,15 +26,18 @@ const bg = (function () {
         log() {
 
         },
-        table() {},
-        time() {},
-        timeEnd() {}
+        table() { },
+        time() { },
+        timeEnd() { }
     }
 })()
 
 //定义全局的hubs变量，存储所有hub的信息
 let hubs = {
     timer: null,
+    write: {
+        hw330: [{ handle: 23, value: '0100' }, { handle: 17, value: '0100' }, { handle: 19, value: 'ff2006000227' }, { handle: 19, value: 'ff000c000501100401010128' }]
+    },
     conut: 0,
     hubs: {}, //所有hub
     scanHubs: [], //正在扫描的hub
@@ -74,7 +78,18 @@ let hubs = {
             //     hubs.__slectHubByNode.call(this, o)
             // })
             this.on('connByName', hubs.__autoConnByName)
-            // this.on('connByNode', hubs.__autoConnByNode)
+            this.on('conn', function (o) {
+                const writeArr = hubs.write[o.name]
+                if (writeArr) {
+                    for (let i = 0; i < writeArr.length; i++) {
+                        const index = _.findWhere(writeArr, { handle: o.handle, value: o.value })
+                        if (index > -1 && index < writeArr.length) {
+                            hubs.write(writeArr[index + 1])
+                        }
+                    }
+                }
+            })
+
         }
         //保证_init函数只执行一次
         if (Object.keys(this.hubs).length === 1) {
@@ -243,7 +258,7 @@ let hubs = {
 
         return this
     },
-   
+
     notify(mac) {
         const hub = this.hubs[mac]
         if (!this.__online(mac)) {
@@ -870,12 +885,12 @@ let hubs = {
 
         $.ajax({
             type: 'get',
-            url: hub.info.server + '/gatt/nodes/' + node + '/handle/' + handle + '/value/' + value + '/?mac=' + mac,
-            headers: hub.info.method === 0 ? '' : {
-                'Authorization': hub.info.authorization
-            },
+            url: hub.info.server + '/gatt/nodes/' + node + '/handle/' + handle + '/value/' + value + '/?mac=' + mac + '&access_token=' + hubs.access_token,
+            // headers: hub.info.method === 0 ? '' : {
+            //     'Authorization': hub.info.authorization
+            // },
             success: function (data) {
-                this.trigger('devices', {
+                this.trigger('write', {
                     mac,
                     node,
                     value,
@@ -926,47 +941,19 @@ _.defaults(hubs, Backbone.Events)
 let peripherals = [],
     allHubs = []
 
-
-
-const hub1 = {
-    "method": 1,
-    "server": "demo.cassianetworks.com",
-    "developer": "tester",
-    "password": "10b83f9a2e823c47",
-    "tokenExpire": 3000,
-    "ip": "192.168.1.134",
-    "mac": "CC:1B:E0:E0:26:F8"
-}
-
-const hub2 = {
-    "method": 1,
-    "server": "demo.cassianetworks.com",
-    "developer": "tester",
-    "password": "10b83f9a2e823c47",
-    "tokenExpire": 3000,
-    "ip": "192.168.1.129",
-    "mac": "CC:1B:E0:E0:1D:0C"
-}
-
-// hubs.add(hub1).init(hub1.mac)
-// hubs.add(hub2).init(hub2.mac)
-//     .conn({
-//         name: ['HW330-0000001', 'CassiaFD_1.2', 'HW-0000001']
-//     })
-
 const startWork = function () {
     debugger
     const target = {
-            name: [],
-            node: []
-        },
+        name: [],
+        node: []
+    },
         position = {
             name: [],
             node: []
         }
     if (allHubs.length === 0 || peripherals.length === 0) {
         return
-    } 
+    }
 
     for (let item of allHubs) {
         hubs.add(item).init(item.mac)
@@ -988,6 +975,17 @@ const startWork = function () {
     }
     hubs.conn(target)
 }
+
+hubs.on('notify', function (mac, data) {
+    const node = data.id, name = _.findWhere(hubs.connetedPeripherals,{node:node}).name
+    ,value = data.value
+    if (name==='HW330-0000001'){
+        
+    }
+})
+
+
+
 
 
 export {

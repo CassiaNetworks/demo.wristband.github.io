@@ -104,7 +104,7 @@ export default sportBodyModel
 module.exports = sportView
 
 
-setTimeout(function () {
-	sportView.changeLang('en')
-	$('#config').trigger('click')
-}, 500)
+// setTimeout(function () {
+// 	sportView.changeLang('en')
+// 	$('#config').trigger('click')
+// }, 500)

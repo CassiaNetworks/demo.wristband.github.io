@@ -1,0 +1,17 @@
+.loc{
+    display: inline-block;
+    margin-left: 8%;
+}
+li h2 {
+    display: inline-block;
+}
+li input {
+    font-size: 18px;
+}
+
+#root li button.send{
+   width: auto;
+    margin-left: 30px;
+    font-size: 18px;
+    position: static;
+}
