@@ -33,7 +33,56 @@ exports.trimeClone = function (obj) {
 }
 
 
-exports.hubInit = function (model, collection, method) {
-    console.log(method)
-    // debugger
+exports.checkOnline = function (model, option) {
+    const hub = model.toJSON()
+
+    function checkOnline(hub, option) {
+        const mac = hub.mac
+        let _url
+        if (hub.method === '0') {
+            _url = 'http://' + hub.ip + `/cassia/info/`
+        } else {
+            _url = 'http://' + hub.server + `/cassia/hubs/${mac}` + '?&access_token=' + hub.access_token
+        }
+        $.ajax({
+            type: 'get',
+            url: _url,
+            context: model,
+            dataType: 'json',
+            success: function () {
+                option.success && option.success.call(this,arguments)
+            },
+            timeout: 5000,
+            error: function () {
+                option.error && option.error.call(this, arguments)
+            }
+        })
+    }
+
+    function oauth(hub, option) {
+        if (hub.method === '0') {
+            checkOnline(hub, option)
+            return
+        }
+        $.ajax({
+            type: 'post',
+            url: 'http://' + hub.server + '/oauth2/token',
+            headers: {
+                'Authorization': 'Basic ' + btoa(hub.developer + ':' + hub.password)
+            },
+            data: {
+                'grant_type': 'client_credentials'
+            },
+            dataType: 'json',
+            context: model,
+            success: function (data) {
+                model.set('access_token', 'Bearer ' + data.access_token)
+                checkOnline(model.toJSON(),option)
+            },
+            error: function () {
+                option.error && option.error.call(this, arguments)
+            }
+        })
+    }
+    oauth(hub, option)
 }

@@ -3,16 +3,15 @@ let peripheralsConfigItemStr = require('../template/peripheralsConfigItemStr')
 const hubItem = require('../models/hubitemmodel')
 const perItem = require('../models/peripheralitemmodel')
 const utils = require('utils/utils')
-let layuis = require('cp')
 import appModel from '../page'
 import {
+    allHubs,
     hubs,
     peripherals
 } from 'cp'
-import Hub from 'publicDir/libs/hubs/hub'
 const hubItemCollection = new hubItem.Collection
 const perItemCollection = new perItem.Collection
-
+const form = layui.form()
 let HubItemView = Backbone.View.extend({
     model: function () {
         if (this.attributes.view === 'hub') {
@@ -41,14 +40,18 @@ let HubItemView = Backbone.View.extend({
 
             })
             //根据radio的值修改验证规则
-            layuis.form.on(`radio`, function (data) {
+            form.on(`radio`, function (data) {
+                
+                if(data.elem.dataset.nochange==='1'){
+                    return
+                }
                 const cid = $(this).attr('name'),
                     parent = $(`li[data-cid='${cid}']`)
                 let select = '',
                     verifyNameArr = ''
                 const verifys = {
-                    "local": ['hubIp', 'location', 'hubMac'],
-                    "remote": ['hubMac', 'server', 'developer', 'password', 'location']
+                    "local": ['ip', 'location', 'mac'],
+                    "remote": ['mac', 'server', 'developer', 'password', 'location']
                 }
 
                 // const model = self.model().get(cid)
@@ -76,7 +79,7 @@ let HubItemView = Backbone.View.extend({
             });
 
             //表单验证规则
-            layuis.form.verify({
+            form.verify({
                 location: function (value) {
                     const _value = $.trim(value)
                     if (_value === '') {
@@ -89,7 +92,7 @@ let HubItemView = Backbone.View.extend({
                         return 'Mac输入错误'
                     }
                 },
-                hubMac: function (value) {
+                mac: function (value) {
                     const _value = $.trim(value)
                     if (_value === '') {
                         return 'Mac不能为空'
@@ -102,7 +105,7 @@ let HubItemView = Backbone.View.extend({
                     }
 
                 },
-                hubIp: function (value) {
+                ip: function (value) {
                     const _value = $.trim(value)
                     if (_value === '') {
                         return 'HubIp不能为空'
@@ -141,7 +144,7 @@ let HubItemView = Backbone.View.extend({
                 }
             });
             //点击hubtest时绑定事件
-            layuis.form.on('submit(testHub)', function (e) {
+            form.on('submit(testHub)', function (e) {
                 const data = utils.trimeClone(e.field),
                     cid = e.elem.dataset.cid,
                     submodel = this.model().get(cid)
@@ -166,15 +169,16 @@ let HubItemView = Backbone.View.extend({
             /**
              *点击手环test时绑定事件
              */
-            layuis.form.on('submit(testPer)', function (e) {
+            form.on('submit(testPer)', function (e) {
                 const data = utils.trimeClone(e.field),
                     cid = e.elem.dataset.cid,
                     submodel = this.model().get(cid)
-
                 for (let key in data) {
                     submodel.set(key, data[key])
                 }
+                const position = data[cid] === '0' ? false : true
                 submodel.set('verify', true)
+                submodel.set('locationsys', position)
                 return false;
             }.bind(this));
         }
@@ -206,9 +210,9 @@ let HubItemView = Backbone.View.extend({
         this.model().push(newModel)
         let keys = _.defaults(newModel.toJSON(), lang)
         $(this.attributes.select).before(this.attributes.template(keys))
-        layuis.form.render()
-        const radio = $('.layui-unselect.layui-form-radio.layui-form-radioed>i')
-        radio.trigger('click')
+        form.render()
+        const $radio = $('.config-tip-hub.config-tip .layui-unselect.layui-form-radio.layui-form-radioed>i')
+        $radio.trigger('click')
     },
     delete: function (e) {
         const cid = e.target.dataset.cid,
@@ -230,7 +234,7 @@ let HubItemView = Backbone.View.extend({
                 let emptyMacName = [],
                     temp
                 collection.toJSON().forEach(item => {
-                    temp = _.pick(item, 'name', 'mac')
+                    temp = _.pick(item, 'name', 'node', 'locationsys')
                     devices.push(temp)
                     if (item.mac === '') {
                         emptyMacDevices.push(temp)
@@ -243,8 +247,15 @@ let HubItemView = Backbone.View.extend({
                         peripherals.push(item)
                     }
                 }
-
-                layui.layer.closeAll()
+                allHubs.peripheralsVer = true
+                if (allHubs.peripheralsVer && allHubs.hubVer) {
+                    layui.layer.closeAll()
+                } else {
+                    layui.layer.msg('手环验证成功，请填写hub信息', {
+                        icon: 1,
+                        time: 1000
+                    });
+                }
             }
             console.log(peripherals)
             return
@@ -252,28 +263,38 @@ let HubItemView = Backbone.View.extend({
         $('.config-tip-hub .test button').trigger('click')
 
         clearInterval(hubs.timer)
-        hubs.timer = setTimeout(function () {
+        hubs.timer = setInterval(function () {
             const verify = collection.pluck('verify')
-            const online = collection.pluck('online')
+            const online = collection.pluck('online'),
+                allHub = collection.toJSON()
             if (verify.indexOf(false) === -1 && online.indexOf(false) === -1) {
-                const allHub = collection.toJSON()
-                for (let item of allHub) {
-                    const hub = new Hub(item)
-                    hubs.hubs[item.hubMac] = hub
-                    hubs.count++
-                }
-
                 clearInterval(hubs.timer)
-                layui.layer.closeAll()
+                allHubs.length = 0
+                for (let item of allHub) {
+                    allHubs.push(item)
+                }
+                allHubs.hubVer = true
+                if (allHubs.peripheralsVer && allHubs.hubVer) {
+                    layui.layer.closeAll()
+                } else {
+                    layui.layer.msg('hub验证成功，请填写手环信息', {
+                        icon: 1,
+                        time: 1000
+                    });
+                }
+                console.log(allHubs)
+
+                // $('div.layui-layer-title span:not(.layui-layer-tabnow)').trigger('click')
+                // layui.layer.closeAll()
             }
-        }, 1000)
+        }, 200)
         // this.model().models.forEach(item=>{
         //     this.model().test(item.toJSON())
         // })
 
     },
     reset: function (e) {
-        debugger
+        // debugger
     },
     render: function () {
 
@@ -285,9 +306,9 @@ let HubItemView = Backbone.View.extend({
         })
         str += self.attributes.footer
         this.$el.html(str)
-        layuis.form.render()
+        form.render()
         // const $icon = this.$el.find('.layui-anim.layui-icon')
-        const $radio = $('.layui-unselect.layui-form-radio.layui-form-radioed>i')
+        const $radio = $('.config-tip-hub.config-tip .layui-unselect.layui-form-radio.layui-form-radioed>i')
         // $icon.removeClass('layui-anim')
         $radio.trigger('click')
         // $icon.addClass('layui-anim layui-anim-scaleSpring')

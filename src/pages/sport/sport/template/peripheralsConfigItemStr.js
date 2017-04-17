@@ -32,7 +32,14 @@ module.exports.liItem = function (data) {
                             <div class="layui-form-item">
                                 <label class="layui-form-label">Mac</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" ${data.cid} name="mac" lay-verify="perMac" placeholder="CC:1B:E0:E0:1B:04" value='${data.mac}'  class="layui-input">
+                                    <input type="text" ${data.cid} name="node" lay-verify="perMac" placeholder="CC:1B:E0:E0:1B:04" value='${data.node}'  class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label"   i18n="locationsys">开启定位</label>
+                                <div>
+                                    <input type="radio" data-nochange='1' name=${data.cid} lay-filter='${data.cid}'  value="1" i18n="Yeslocation" ${data.locationsys===1?'checked':''} title = '${data.Yeslocation}' >
+                                    <input type="radio" data-nochange='1' name=${data.cid} lay-filter='${data.cid}'  value="0" i18n="Nolocation"  ${data.locationsys===0?'checked':'' } title = '${data. Nolocation}'>
                                 </div>
                             </div>
                             <div class="layui-form-item test layui-hide">

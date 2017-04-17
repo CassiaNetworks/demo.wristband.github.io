@@ -7,8 +7,13 @@ const utils = require('publicDir/libs/utils/utils')
 const SportConfigView = require('./view/sportConfigView')
 const hubStr = require('./template/hubConfigItemStr')
 const perpheralStr = require('./template/peripheralsConfigItemStr')
-import hubColl from './view/sportConfigView'
-import {hubs} from 'cp'
+import {
+	DashboardView
+} from './view/dashboardView'
+import {
+	startWork
+} from 'cp'
+
 
 
 const SportBodyModel = Backbone.Model.extend({
@@ -71,7 +76,7 @@ const SportBodyView = Backbone.View.extend({
 		})
 	},
 	startWork: function () {
-		
+		startWork()
 	},
 	initialize: function () {
 		this.render()
@@ -90,8 +95,15 @@ const SportBodyView = Backbone.View.extend({
 var sportView = new SportBodyView({
 	el: $('#root')
 })
+
+new DashboardView({
+	el: '#root .show-pannel ul'
+})
+
 export default sportBodyModel
 module.exports = sportView
+
+
 setTimeout(function () {
 	sportView.changeLang('en')
 	$('#config').trigger('click')

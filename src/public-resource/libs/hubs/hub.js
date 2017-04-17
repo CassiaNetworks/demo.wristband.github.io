@@ -1,4 +1,3 @@
-const api = require('publicDir/libs/api/api')
 var hubConfig = require('../../config/hubConfig.json')
 let Hub = function (config) {
     config = config || {}
@@ -24,15 +23,15 @@ let Hub = function (config) {
 
     this.info = {
         method: config.method || hubConfig.info.method,
-        server: config.server || hubConfig.info.cloundAddress,
+        server: 'http://' + config.server || hubConfig.info.cloundAddress,
         developer: config.developer || hubConfig.info.developer,
         password: config.password || hubConfig.info.password,
-        ip: config.hubIp || '',
-        location: config.location,
-        mac: config.hubMac,
-        access_token: '',
-        authorization: '',
         interval: hubConfig.info.tokenExpire,
+        ip: 'http://' + config.ip || '',
+        location: config.location,
+        mac: config.mac,
+        access_token: '',
+        authorization: ''
     }
     this.config = {
         maxConnected: config.maxConnected || hubConfig.config.maxConnected,
@@ -52,10 +51,10 @@ let Hub = function (config) {
         CheckConnTimeExp: 0, //时间后检查
         Peripherals: { //
             peripheralsMac: {
-                node: '',
-                name: '',
-                type: '',
-                chipId: null //连接的芯片
+                // node: '',
+                // name: '',
+                // type: '',
+                // chipId: null //连接的芯片
                 // notify: '', //是否通知
                 // expectedNotify: '', //期望是否通知
                 // checkNotifyTime: 3, //

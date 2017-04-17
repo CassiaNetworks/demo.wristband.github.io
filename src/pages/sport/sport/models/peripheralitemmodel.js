@@ -1,9 +1,10 @@
 const hubConfig = require('configDir/peripheralConfig.json')
 let allPers = hubConfig.allPers
 const baseData = {
-    mac: '',
+    node: '',
     name: allPers[0], //  HW330,
-    verify: false
+    verify: false,
+    locationsys:0
 }
 const PerItemModel = Backbone.Model.extend({
     defaults: baseData,

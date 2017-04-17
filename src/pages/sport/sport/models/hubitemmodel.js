@@ -1,11 +1,10 @@
-import api from 'publicDir/libs/api/api.js'
 const hubConfig = require('configDir/hubConfig.json')
 const utils = require('publicDir/libs/utils/utils')
 const baseData = {
     method: hubConfig.info.method,
-    hubMac: 'CC:1B:E0:E0:',
-    hubIp: '192.168.0.153',
-    server: hubConfig.info.cloundAddress,
+    mac: 'CC:1B:E0:E0:26:F8',
+    ip: '192.168.1.103',
+    server: hubConfig.info.server,
     developer: hubConfig.info.developer,
     password: hubConfig.info.password,
     verify: false,
@@ -20,30 +19,23 @@ const HubItemModel = Backbone.Model.extend({
 
 const HubItemColle = Backbone.Collection.extend({
     initialize: function () {
-        console.log(this)
-        this.on('add change remove', utils.hubInit)
         this.add(new HubItemModel)
     },
     test: function (model) {
-        debugger
         if (model.get('verify') === false)
             return
-        api.use(model.toJSON())
-
         // 测试hub是否可用
-        api.online({
+        const option = {
             success: function () {
-                debugger
-                this.context.set('online', true)
-                $(`li[data-cid='${this.context.cid}']`).find('.test i').html('OK')
+                this.set('online', true)
+                $(`li[data-cid='${this.cid}']`).find('.test i').html('OK')
             },
             error: function (xhr) {
-                debugger
-                this.context.set('online', false)
-                $(`li[data-cid='${this.context.cid}']`).find('.test i').html(xhr[1])
-            },
-            context: model
-        })
+                this.set('online', false)
+                $(`li[data-cid='${this.cid}']`).find('.test i').html(xhr[1])
+            }
+        }
+        utils.checkOnline(model, option)
     }
 })
 

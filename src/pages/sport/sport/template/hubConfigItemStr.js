@@ -21,14 +21,14 @@ module.exports.liItem = ` <li class="hub-item layui-form" data-cid=<%= cid %> >
                             <div class="layui-form-item">
                                 <label class="layui-form-label">HubMac</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" data-cid='<%- cid%>' name="hubMac" lay-verify="hubMac" placeholder="CC:1B:E0:E0:1B:04" value='<%= hubMac %>' class="layui-input">
+                                    <input type="text" data-cid='<%- cid%>' name="mac" lay-verify="mac" placeholder="CC:1B:E0:E0:1B:04" value='<%= mac %>' class="layui-input">
                                 </div>
                             </div>
 
                             <div class="layui-form-item">
                                 <label class="layui-form-label">HubIp</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" data-cid='<%- cid%>' name="hubIp" lay-verify="hubIp" placeholder="192.168.1.100" value='<%= hubIp %>' class="layui-input">
+                                    <input type="text" data-cid='<%- cid%>' name="ip" lay-verify="ip" placeholder="192.168.1.100" value='<%= ip %>' class="layui-input">
                                 </div>
                             </div>
 

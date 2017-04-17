@@ -1,9 +1,5 @@
-// layui.use(['form'], function() {
-//     module.exports.form = layui.form()
-// })
-//
-// const hubConfig = require('../config/hubConfig.json')
-// 
+import Hub from 'publicDir/libs/hubs/hub'
+
 const DEBUG = false
 const bg = (function () {
     if (DEBUG) {
@@ -34,100 +30,10 @@ const bg = (function () {
         timeEnd() {}
     }
 })()
-const hubConfig = {
-    "info": {
-        "method": 0,
-        "server": "demo.cassianetworks.com",
-        "developer": "tester",
-        "password": "10b83f9a2e823c47",
-        "tokenExpire": 3000,
-        "ip": "",
-        "location": "",
-        "mac": "",
-        "access_token": "",
-        "authorization": ""
-    },
-    "config": {
-        "maxConnected": 14,
-        "maxConnected0": 7,
-        "maxConnected1": 7
-    },
-    "connetedPeripherals": {
-        "checkConnTime": 3
-    }
-}
-
-function inithub(o) {
-    let _inithub = {
-        output: {
-            scan: '',
-            notify: ''
-        },
-        _escapeTime: {
-            token: 0,
-            devices: 0,
-            scanData: 0,
-            clearZombyScanData: 0,
-            sortByRssi: 0,
-            checkOnline: 0
-        },
-        scanData: {
-            origin: {},
-            sort: {
-                name: {},
-                rssi: []
-            }
-        },
-        info: {
-            method: parseInt(o.method || hubConfig.info.method),
-            server: 'http://' + o.server || hubConfig.info.cloundAddress,
-            developer: o.developer || hubConfig.info.developer,
-            password: o.password || hubConfig.info.password,
-            interval: hubConfig.info.tokenExpire,
-            ip: 'http://' + o.ip || '',
-            location: {},
-            mac: o.mac,
-            access_token: '',
-            authorization: ''
-        },
-        config: {
-            maxConnected: o.maxConnected || hubConfig.config.maxConnected,
-            maxConnected0: o.maxConnected0 || hubConfig.config.maxConnected0,
-            maxConnected1: o.maxConnected1 || hubConfig.config.maxConnected1
-        },
-        status: {
-            online: false, //hub在线?
-            conn: 0, //连接数量
-            doing: { //正在做什么
-                scan: 2, //0:芯片0扫描;1:芯片1扫描;2代表停止扫描
-                node: '' //正在连接设备的mac
-            }
-        },
-        connetedPeripherals: { //已连接设备
-            checkConnTime: hubConfig.connetedPeripherals.checkConnTime, //检查连接时间周期
-            CheckConnTimeExp: 0, //时间后检查
-            Peripherals: { //
-                // node: {
-                //     mac: '',
-                //     node: '',
-                //     name: '',
-                //     type: '',
-                //     chipId: null //连接的芯片
-                //     // notify: '', //是否通知
-                //     // expectedNotify: '', //期望是否通知
-                //     // checkNotifyTime: 3, //
-                //     // checkNotifyTimeExp: 0 //时间后检查
-                // }
-            }
-        }
-    }
-    return _inithub
-}
-
-
 
 //定义全局的hubs变量，存储所有hub的信息
 let hubs = {
+    timer: null,
     conut: 0,
     hubs: {}, //所有hub
     scanHubs: [], //正在扫描的hub
@@ -144,12 +50,14 @@ let hubs = {
         node: [],
         name: []
     },
+    position: {
+        node: [],
+        name: []
+    },
     init(mac) {
-
-        const _init = function () {
+        const __initEvent = function () {
             this.on('oauth', function (o) {
                 this.__changeServer(o.mac)
-                debugger
                 hubs.__checkOnline(o.mac)
             })
             this.on('online', function (o) {
@@ -160,29 +68,33 @@ let hubs = {
             this.on('scanData', function (o) {
                 hubs.__scanDataColl(o)
             })
-            this.on('autoCon', function (o) {
-                hubs.__slectHubByName.call(this, o)
-                hubs.__slectHubByNode.call(this, o)
-            })
+            //每次收到期望连接的设备时 触发连接请求
+            // this.on('autoCon', function (o) {
+            //     hubs.__slectHubByName.call(this, o)
+            //     hubs.__slectHubByNode.call(this, o)
+            // })
             this.on('connByName', hubs.__autoConnByName)
-            this.on('connByNode', hubs.__autoConnByNode)
+            // this.on('connByNode', hubs.__autoConnByNode)
         }
-        _.once(_init.bind(this))()
+        //保证_init函数只执行一次
+        if (Object.keys(this.hubs).length === 1) {
+            __initEvent.call(this)
+        }
         this.oauth(mac)
         return this
     },
     __changeServer(mac) {
         const info = this.hubs[mac].info
-        info.server = info.method ? info.server : info.ip
+        info.server = info.method === '1' ? info.server : info.ip
     },
     add(o = {}) {
         const mac = o.mac
 
         function _add() {
             if (this.hubs[mac]) {
-                throw new Error(`${mac} has existed`)
+                console.warn(`${mac} has existed`)
             } else {
-                this.hubs[mac] = inithub(o)
+                this.hubs[mac] = new Hub(o)
             }
         }
 
@@ -210,15 +122,18 @@ let hubs = {
     oauth(mac, option) {
         mac = mac || ''
         option = option || {
-            silent: false
+            silent: false,
+            eventName1: 'oauth',
+            eventName2: 'oauthErr'
         }
         const hub = this.hubs[mac]
-        if (hub.info.method === 0) {
+        if (hub.info.method === '0') {
             if (!option.silent) {
-                this.trigger('oauth', {
-                    mac
-
-                })
+                if (!option.silent) {
+                    this.trigger(option.eventName1, {
+                        mac
+                    })
+                }
             }
             return this
         }
@@ -228,10 +143,10 @@ let hubs = {
             headers: {
                 'Authorization': 'Basic ' + btoa(hub.info.developer + ':' + hub.info.password)
             },
-            data: JSON.stringify({
+            data: {
                 'grant_type': 'client_credentials'
-            }),
-            contentType: 'application/json',
+            },
+            // contentType: 'application/json',
             dataType: 'json',
             context: this,
             success: function (data) {
@@ -240,17 +155,19 @@ let hubs = {
                 hub._escapeTime.token = 0
                 hub.info.authorization = 'Bearer ' + data.access_token
                 if (!option.silent) {
-                    this.trigger('oauth', {
+                    this.trigger(option.eventName1, {
                         mac,
                         data
                     })
                 }
             },
             error: function (xhr) {
-                this.trigger('oauthErr', {
-                    mac,
-                    xhr
-                })
+                if (!option.silent) {
+                    this.trigger(option.eventName2, {
+                        mac,
+                        xhr
+                    })
+                }
             }
         })
         return this
@@ -258,18 +175,18 @@ let hubs = {
     __checkOnline(mac) {
         const hub = this.hubs[mac]
         let _url
-        if (hub.info.method === 0) {
+        if (hub.info.method === '0') {
             _url = hub.info.ip + `/cassia/info/`
         } else {
-            _url = hub.info.server + `/cassia/hubs/${mac}`
+            _url = hub.info.server + `/cassia/hubs/${mac}` + '?&access_token=' + hub.info.access_token
         }
 
         $.ajax({
             type: 'get',
             url: _url,
-            headers: hub.info.method === 0 ? '' : {
-                'Authorization': hub.info.authorization
-            },
+            // headers: hub.info.method === 0 ? '' : {
+            //     'Authorization': hub.info.authorization
+            // },
             context: this,
             dataType: 'json',
             success: function (data) {
@@ -326,23 +243,7 @@ let hubs = {
 
         return this
     },
-    // scanHandle(fnArr) {
-    //     hubs.on('scan', function (mac, data) {
-    //         fnArr.forEach(item => {
-    //             item && item(mac, data)
-    //         })
-    //     })
-    // },
-    // notifyHandle(fnArr) {
-    //     hubs.on('notify', function (mac, data) {
-    //         if (data.match(/keep-alive/i)) {
-    //             return
-    //         }
-    //         fnArr.forEach(item => {
-    //             item && item(mac, data)
-    //         })
-    //     })
-    // },
+   
     notify(mac) {
         const hub = this.hubs[mac]
         if (!this.__online(mac)) {
@@ -423,14 +324,16 @@ let hubs = {
             for (let mac in this.hubs) {
                 let hub = this.hubs[mac]
                 this.interval.tasks.forEach(function (item) {
-                    if (hub._escapeTime[item.escapeTime]++ === item.interval) {
+                    if (++hub._escapeTime[item.escapeTime] === item.interval) {
                         item.fn && item.fn.call(this, mac, {
                             silent: item.silent
                         })
                     }
                 }, this)
             }
+            this.__slectHubPs.call(this)
         }.bind(this), 1000)
+
         return this
     },
     __clearZombyScanData(mac, option) {
@@ -478,7 +381,7 @@ let hubs = {
     },
     //同步 availableHubs  conningPers connetedPeripherals  hubs[mac].status.doing   hubs[mac]status.conn   
     __conningSyncInfoData(o) {
-        console.log(`${o.mac}   开始连接   ${o.name}   ${o.node}`)
+        console.log(`${o.mac}   开始连接   ${o.name}   ${o.node}   RSSI${o.avg}`)
         hubs.__delete(o.mac, hubs.availableHubs)
         hubs.conningPers.push(o.node)
         hubs.hubs[o.mac].status.doing.node = o.node
@@ -549,12 +452,40 @@ let hubs = {
         }
         return this.conningPers.indexOf(node) === -1 && !this.connetedPeripherals[node]
     },
+    __slectHubPs() {
+        const len = this.availableHubs.length
+        let result = {},
+            filterArr = []
+        for (let i = 0; i < len; i++) {
+            const mac = this.availableHubs[i]
+            for (let node of this.hubs[mac].scanData.sort.rssi) {
+                if (this.conningPers.indexOf(node.node) === -1 && (this.target.name.indexOf(node.name) > -1 || this.target.node.indexOf(node.node) > -1)) {
+                    if (filterArr.length < len * (i + 1)) {
+                        filterArr.push(node)
+                    }
+                }
+            }
+        }
+
+        if (filterArr.length === 0) {
+            return this
+        }
+        let len2 = 0
+        filterArr = _.sortBy(filterArr, (item) => -item.avg)
+        for (let node of filterArr) {
+            if (!result[node.mac] && len2 < len) {
+                result[node.mac] = node
+                len2++
+            }
+        }
+        this.trigger('connByName', result)
+    },
     /**
      * 
      * 
      * @param {any} [name=[]] 
      * @param {any} [option={}] 
-     * @returns 
+     * @returns  每次第一次发现设备时 就会去连接，如果哦连接失败则会从最大3秒内最大平均rssi中选择hub
      */
     __slectHubByName(o, option) {
         option = option || {
@@ -564,13 +495,19 @@ let hubs = {
 
         //存储当前 所有/可用 hub扫描到的名为 name 的设备
         let availableHubs = this.availableHubs
+
+
+
+
         const len = availableHubs.length,
             name = o.name
         if (len === 0 || this.target.name.indexOf(name) === -1) {
             return this
         }
         console.log(`发现要连接的设备${name}`)
-        let node = this.hubs[availableHubs[0]].scanData.sort.name[name][0]
+
+        // have bug
+        let node = this.hubs[availableHubs[o.mac]].scanData.sort.name[name][0]
         if (len === 1 && this.__perAvailable(node.node)) {
             if (this.__hubAvailable(availableHubs[0])) {
                 this.trigger('connByName', {
@@ -583,8 +520,11 @@ let hubs = {
 
         let filtedData = {},
             allScanData = [],
-            sortByName
-        for (let mac of availableHubs) {
+            sortByName,
+            // 过滤指定available，返回可用hub中scandata中有特定name的hub
+            availableWithOrderName = availableHubs.filter(item => hubs.hubs[item].scanData.sort.name[name], this)
+
+        for (let mac of availableWithOrderName) {
             sortByName = this.hubs[mac].scanData.sort.name[name]
             for (let i = 0, len2 = Math.min(len, sortByName.length); i < len2; i++) {
                 if (this.__perAvailable(sortByName[i].node) && this.__hubAvailable(mac)) {
@@ -608,7 +548,7 @@ let hubs = {
                 resultNode.push(node.node)
             }
         }
-        this.trigger('connByName', result)
+        // this.trigger('connByName', result)
     },
     __slectHubByNode(node) {
         const mac = node.mac,
@@ -702,7 +642,8 @@ let hubs = {
             if (realName) {
                 hubs.trigger('autoCon', {
                     node: node,
-                    name: realName
+                    name: realName,
+                    mac: mac
                 })
             }
 
@@ -737,26 +678,28 @@ let hubs = {
             type: '',
             name: ''
         }
-        const mac = o.mac,
-            node = o.node,
+        const node = o.node,
             type = o.type,
-            name = o.name
-        if (!mac && node) {
-            if (typeof name === 'string' && this.target.name.indexOf(name) === -1)
-                this.target.node.push(node)
-            else {
-                this.target.node = _.union(this.target.node, node)
-            }
-            return this
-        }
-        if (mac && node && type) {
+            name = o.name,
+            mac = o.mac
+
+        if (typeof mac === 'string' && typeof node === 'string' && type) {
             this.__conn(o)
             return this
         }
+        if (typeof node === 'object' && node.length > 0) {
+            this.target.node = _.union(this.target.node, node)
+            return this
+        }
+        if (typeof name === 'object' && name.length > 0) {
+            this.target.name = _.union(this.target.name, name)
+            return this
+        }
 
-        if (name && !mac) {
+
+        if (node.length > 0) {
             if (typeof name === 'string' && this.target.name.indexOf(name) === -1)
-                this.target.name.push(name)
+                this.target.node.push(node)
             else {
                 this.target.name = _.union(this.target.name, name)
             }
@@ -773,10 +716,10 @@ let hubs = {
         this.__conningSyncInfoData(o)
         $.ajax({
             type: 'post',
-            url: hub.info.server + '/gap/nodes/' + o.node + '/connection?mac=' + o.mac,
-            headers: hub.info.method === 0 ? '' : {
-                'Authorization': hub.info.authorization
-            },
+            url: hub.info.server + '/gap/nodes/' + o.node + '/connection?mac=' + o.mac + '&access_token=' + hub.info.access_token,
+            // headers: hub.info.method === 0 ? '' : {
+            //     'Authorization': hub.info.authorization
+            // },
             data: {
                 "type": o.type || "public"
             },
@@ -859,12 +802,12 @@ let hubs = {
         }
         $.ajax({
             type: 'get',
-            url: hub.info.server + '/gap/nodes/?connection_state=connected&mac=' + mac,
-            headers: hub.info.method === 0 ? '' : {
-                'Authorization': hub.info.authorization
-            },
+            url: hub.info.server + '/gap/nodes/?connection_state=connected&mac=' + mac + '&access_token=' + hub.info.access_token,
+            // headers: hub.info.method === 0 ? '' : {
+            //     'Authorization': hub.info.authorization
+            // },
             context: this,
-            dataType:'application/json',
+            dataType: 'application/json',
             success: function (data) {
                 const nodes = data.nodes
                 this.hubs[mac].status.conn = nodes.length
@@ -902,7 +845,7 @@ let hubs = {
                 }
             }
         })
-        // this.hubs[mac]._escapeTime.devices = 0
+        this.hubs[mac]._escapeTime.devices = 0
         return this
     },
     __online(mac) {
@@ -980,9 +923,13 @@ let hubs = {
 
 //  hubs 继承Backbone.Events的事件
 _.defaults(hubs, Backbone.Events)
+let peripherals = [],
+    allHubs = []
+
+
 
 const hub1 = {
-    "method": 0,
+    "method": 1,
     "server": "demo.cassianetworks.com",
     "developer": "tester",
     "password": "10b83f9a2e823c47",
@@ -992,7 +939,7 @@ const hub1 = {
 }
 
 const hub2 = {
-    "method": 0,
+    "method": 1,
     "server": "demo.cassianetworks.com",
     "developer": "tester",
     "password": "10b83f9a2e823c47",
@@ -1001,22 +948,51 @@ const hub2 = {
     "mac": "CC:1B:E0:E0:1D:0C"
 }
 
-hubs.add(hub2).init(hub2.mac)
-hubs.add(hub1).init(hub1.mac).conn({
-    name: ['HW330-0000001', 'CassiaFD_1.2', 'HW-0000001']
-})
+// hubs.add(hub1).init(hub1.mac)
+// hubs.add(hub2).init(hub2.mac)
+//     .conn({
+//         name: ['HW330-0000001', 'CassiaFD_1.2', 'HW-0000001']
+//     })
 
-// const startWork = function (hubs = {}, peripherals = []) {
-//     if (hubs.conut === 0 || peripherals.length === 0) {
-//         return
-//     }
+const startWork = function () {
+    debugger
+    const target = {
+            name: [],
+            node: []
+        },
+        position = {
+            name: [],
+            node: []
+        }
+    if (allHubs.length === 0 || peripherals.length === 0) {
+        return
+    } 
 
-// }
+    for (let item of allHubs) {
+        hubs.add(item).init(item.mac)
+    }
+    for (let item of peripherals) {
+        if (item.locationsys) {
+            if (item.mac)
+                position.node.push(item.node)
+            else if (item.name) {
+                position.name.push(item.name)
+            }
+        } else {
+            if (item.mac)
+                target.mac.push(item.mac)
+            else if (item.name) {
+                target.name.push(item.name)
+            }
+        }
+    }
+    hubs.conn(target)
+}
 
 
-
-// export {
-//     hubs,
-//     peripherals,
-//     startWork
-// }
+export {
+    hubs,
+    allHubs,
+    peripherals,
+    startWork
+}

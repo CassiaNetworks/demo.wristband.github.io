@@ -9,7 +9,10 @@
             "local":"本地",
             "remote":"云端",
             "test":"测试",
-            "deletes":"移除"
+            "deletes":"移除",
+            "Nolocation":"否",
+            "Yeslocation":"是"
+
         },
         "en": {
             "lang": "en",
@@ -20,7 +23,10 @@
             "local":"local",
             "remote":"remote",
             "test":"Test",
-            "deletes":"Delete"
+            "deletes":"Delete",
+            "locationsys":"Open Loc.",
+            "Nolocation":"NO",
+            "Yeslocation":"YES"
             
         }
     }
