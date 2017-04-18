@@ -6,8 +6,9 @@ const dashBoardItemModel = Backbone.Model.extend({
         heartRate: '',
         node: '',
         step: '',
-        message:''
+        say:''
     },
+    idAttribute:'node',
     initialize:function(){
         this.set('cid',this.cid)
     }
@@ -18,4 +19,7 @@ const DashBoardItemColl = Backbone.Collection.extend({
     initialize:function(){
     }
 });
-export {DashBoardItemColl}
+
+
+const dashBoardItemColl = new DashBoardItemColl()
+export {dashBoardItemColl}

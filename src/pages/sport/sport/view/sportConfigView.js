@@ -224,7 +224,6 @@ let HubItemView = Backbone.View.extend({
     finsh: function (e) {
         const collection = this.model()
         if ($(e.target).hasClass('per')) {
-            debugger
             $(`button[lay-filter='testPer']`).trigger('click')
             const verify = collection.pluck('verify')
             if (verify.indexOf(false) === -1) {

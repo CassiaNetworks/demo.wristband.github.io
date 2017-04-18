@@ -5,12 +5,12 @@ import './dashboard.css'
 function dashboardStr(data) {
     const str = `<li data-node='${data.node}'>
 					<h2>${data.userName}</h2>
-					<p class="loc">位置：<span ></span></p>
-					<p>累计步数 : <span class="totalStep">${data.totalStep}</span></p>
+					${data.loc?'<p class="loc">位置：<span >'+data.loc+'</span></p>':''}
+					<p class="totalStep">累计步数 : <span >${data.totalStep}</span></p>
 					${data.say?"<input type = 'text' value='hello'><button class='send' data-node='"+data.node+"'>send</button>":''}
 					<div class="yellow">
 						<img src=${fire_static} alt="icon">
-						<p><span>${data.cal}</span>卡</p>
+						<p><span>${data.cal}</span>千卡</p>
 					</div>
 					<div class="red">
 						<img src=${heart_staic} alt="icon">

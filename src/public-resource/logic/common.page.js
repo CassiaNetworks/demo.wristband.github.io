@@ -1,5 +1,8 @@
 import Hub from 'publicDir/libs/hubs/hub'
-import hw330 from 'publicDir/libs/peripherals/hw330'
+import HW3300000001 from 'publicDir/libs/peripherals/HW3300000001'
+import {
+    dashBoardItemColl
+} from '../../pages/sport/sport/models/dashboardmodel'
 
 const DEBUG = false
 const bg = (function () {
@@ -26,17 +29,18 @@ const bg = (function () {
         log() {
 
         },
-        table() { },
-        time() { },
-        timeEnd() { }
+        table() {},
+        time() {},
+        timeEnd() {}
     }
 })()
 
 //定义全局的hubs变量，存储所有hub的信息
 let hubs = {
     timer: null,
-    write: {
-        hw330: [{ handle: 23, value: '0100' }, { handle: 17, value: '0100' }, { handle: 19, value: 'ff2006000227' }, { handle: 19, value: 'ff000c000501100401010128' }]
+    writeArr: {},
+    scanDataHandle: {
+        'HW330-0000001': HW3300000001.scanDataHandle
     },
     conut: 0,
     hubs: {}, //所有hub
@@ -71,6 +75,15 @@ let hubs = {
             })
             this.on('scanData', function (o) {
                 hubs.__scanDataColl(o)
+                const node = o.data.bdaddrs[0].bdaddr,
+                    name = o.data.name.match('unknow') ? hubs.locationData[node].name : o.data.name
+                if (name.match('unknow')) {
+                    return
+                } else if (hubs.scanDataHandle[name]) {
+                    if (hubs.scanDataHandle[name]) {
+                        hubs.trigger('broadcastData', hubs.scanDataHandle[name].call(this, o))
+                    }
+                }
             })
             //每次收到期望连接的设备时 触发连接请求
             // this.on('autoCon', function (o) {
@@ -79,10 +92,13 @@ let hubs = {
             // })
             this.on('connByName', hubs.__autoConnByName)
             this.on('conn', function (o) {
-                const writeArr = hubs.write[o.name]
+                const writeArr = hubs.writeArr[o.name]
                 if (writeArr) {
                     for (let i = 0; i < writeArr.length; i++) {
-                        const index = _.findWhere(writeArr, { handle: o.handle, value: o.value })
+                        const index = _.findWhere(writeArr, {
+                            handle: o.handle,
+                            value: o.value
+                        })
                         if (index > -1 && index < writeArr.length) {
                             hubs.write(writeArr[index + 1])
                         }
@@ -375,6 +391,7 @@ let hubs = {
     },
     __clearOldLoac() {
         for (let node in this.locationData) {
+            this.locationData[node] && this.locationData[node].life--;
             if (this.locationData[node] && this.locationData[node].life === 0) {
                 this.locationData[node] = null
             }
@@ -611,14 +628,16 @@ let hubs = {
             hub.scanData.origin[node] = initNode(node, hub.scanData.origin)
             let index, _node = hub.scanData.origin[node]
             const len = _node.rssi.push(rssi)
-            if (len > 10) {
+            if (len > 5) {
                 _node.rssi.shift()
             }
             _node.node = node
             _node.mac = mac
             _node.max = Math.max(rssi, _node.max)
             _node.min = Math.min(rssi, _node.min)
-            _node.avg = parseInt(((_node.avg * (len - 1) + rssi) / len))
+            _node.avg = parseInt(_.reduce(_node.rssi, function (memo, num) {
+                return memo + num;
+            }, 0) / len)
             if (!name.match(/unknown/)) {
                 _node.name = name
             }
@@ -631,7 +650,7 @@ let hubs = {
             if (!this.locationData[node]) {
                 this.locationData[node] = _node
             } else {
-                if (this.locationData[node].avg < _node.avg) {
+                if (_node.avg - this.locationData[node].avg > 2 && _node.times > 1) {
                     this.locationData[node] = _node
                 }
             }
@@ -772,16 +791,16 @@ let hubs = {
         const hub = this.hubs[o.mac],
             mac = o.mac,
             node = o.node
-        if (this.__online(mac) || !this.__online(node)) {
+        if (!this.__online(mac) || !this.__online(node)) {
             return
         }
 
         $.ajax({
             type: 'delete',
-            url: hub.info.server + '/gap/nodes/' + o.node + '/connection?mac=' + o.hub,
-            headers: hub.info.method === 0 ? '' : {
-                'Authorization': hub.info.authorization
-            },
+            url: hub.info.server + '/gap/nodes/' + o.node + '/connection?mac=' + o.hub + '&access_token=' + hub.access_token,
+            // headers: hub.info.method === 0 ? '' : {
+            //     'Authorization': hub.info.authorization
+            // },
             context: this,
             success: function (data) {
                 this.removePer({
@@ -860,11 +879,11 @@ let hubs = {
                 }
             }
         })
-        this.hubs[mac]._escapeTime.devices = 0
+        // this.hubs[mac]._escapeTime.devices = 0
         return this
     },
     __online(mac) {
-        return !!this.hubs[mac] && this.hubs[mac].status.online || !this.connetedPeripherals[mac]
+        return this.hubs[mac] && this.hubs[mac].status.online || this.connetedPeripherals[mac]
     },
     write(o) {
         o = o || {
@@ -885,12 +904,14 @@ let hubs = {
 
         $.ajax({
             type: 'get',
+            cache: false,
+            context: this,
             url: hub.info.server + '/gatt/nodes/' + node + '/handle/' + handle + '/value/' + value + '/?mac=' + mac + '&access_token=' + hubs.access_token,
             // headers: hub.info.method === 0 ? '' : {
             //     'Authorization': hub.info.authorization
             // },
             success: function (data) {
-                this.trigger('write', {
+                this.trigger(o.eventName1 || 'write', {
                     mac,
                     node,
                     value,
@@ -942,16 +963,16 @@ let peripherals = [],
     allHubs = []
 
 const startWork = function () {
-    debugger
+    //连接相关
     const target = {
-        name: [],
-        node: []
-    },
+            name: [],
+            node: []
+        },
         position = {
             name: [],
             node: []
         }
-    if (allHubs.length === 0 || peripherals.length === 0) {
+    if (allHubs.length === 0) {
         return
     }
 
@@ -974,19 +995,45 @@ const startWork = function () {
         }
     }
     hubs.conn(target)
+    //
+    hubs.off('broadcastData')
+    hubs.off('notify')
+    hubs.on('broadcastData', function (o) {
+        const model = dashBoardItemColl.get(o.node)
+        if (model) {
+            model.set('heartRate', o.heartRate)
+            if (model.get('baseStep') !== o.step) {
+                model.set('totalStep', o.step - model.get('baseStep'))
+            }
+            model.set('step', o.step - model.get('baseCircleStep'))
+            model.set('loc', hubs.hubs[hubs.locationData[o.node].mac].info.location)
+            model.set('cal', ((model.get('step') * .03918)).toFixed(2))
+        } else {
+            dashBoardItemColl.add({
+                userName: o.node.slice(-5),
+                baseStep: o.step,
+                baseCircleStep: o.step,
+                totalStep: 0,
+                cal: 0,
+                loc: hubs.hubs[hubs.locationData[o.node].mac].info.location,
+                heartRate: o.heartRate,
+                step: 0,
+                say: true,
+                node: o.node
+            })
+        }
+    })
+    hubs.on('notify', function (data) {
+        // const node = data.id,
+        //     name = _.findWhere(hubs.connetedPeripherals, {
+        //         node: node
+        //     }).name
+        // if (name === 'HW330-0000001') {
+
+        // }
+    })
+
 }
-
-hubs.on('notify', function (mac, data) {
-    const node = data.id, name = _.findWhere(hubs.connetedPeripherals,{node:node}).name
-    ,value = data.value
-    if (name==='HW330-0000001'){
-        
-    }
-})
-
-
-
-
 
 export {
     hubs,
