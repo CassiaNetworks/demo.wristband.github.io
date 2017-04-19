@@ -38,8 +38,8 @@ module.exports.liItem = function (data) {
                             <div class="layui-form-item">
                                 <label class="layui-form-label"   i18n="locationsys">开启定位</label>
                                 <div>
-                                    <input type="radio" data-nochange='1' name=${data.cid} lay-filter='${data.cid}'  value="1" i18n="Yeslocation" ${data.locationsys===1?'checked':''} title = '${data.Yeslocation}' >
-                                    <input type="radio" data-nochange='1' name=${data.cid} lay-filter='${data.cid}'  value="0" i18n="Nolocation"  ${data.locationsys===0?'checked':'' } title = '${data. Nolocation}'>
+                                    <input type="radio" data-nochange='1' name=${data.cid} lay-filter='${data.cid}'  value="1" i18n="Yeslocation" ${parseInt(data.location)===1?'checked':''} title = '${data.Yeslocation}' >
+                                    <input type="radio" data-nochange='1' name=${data.cid} lay-filter='${data.cid}'  value="0" i18n="Nolocation"  ${parseInt(data.location)===0?'checked':'' } title = '${data. Nolocation}'>
                                 </div>
                             </div>
                             <div class="layui-form-item test layui-hide">

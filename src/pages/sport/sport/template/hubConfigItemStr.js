@@ -15,7 +15,7 @@ module.exports.liItem = ` <li class="hub-item layui-form" data-cid=<%= cid %> >
                             <div class="layui-form-item">
                                 <label class="layui-form-label">Location</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" data-cid='<%- cid%>' name="location" lay-verify="location" placeholder="请输入位置信息"  value='<%= cid %>' class="layui-input">
+                                    <input type="text" data-cid='<%- cid%>' name="location" lay-verify="location" placeholder="请输入位置信息"  value='<%= location %>' class="layui-input">
                                 </div>
                             </div>
                             <div class="layui-form-item">

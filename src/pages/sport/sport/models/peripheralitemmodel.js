@@ -4,7 +4,7 @@ const baseData = {
     node: '',
     name: allPers[0], //  HW330,
     verify: false,
-    locationsys:0
+    location:1
 }
 const PerItemModel = Backbone.Model.extend({
     defaults: baseData,

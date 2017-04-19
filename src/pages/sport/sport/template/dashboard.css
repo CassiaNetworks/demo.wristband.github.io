@@ -17,3 +17,11 @@ li input {
     height: 28px;
     line-height: 1;
 }
+
+.userName{
+    width: 115px;
+    font-size: 42px;
+    color: #fff;
+    background: transparent;
+    border: 0;
+}

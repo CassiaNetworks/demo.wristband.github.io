@@ -23,7 +23,6 @@ let HubItemView = Backbone.View.extend({
     // model:new hubItem.Collection,
     events: {
         'click .addhub': 'addhub',
-        // 'click .test button': 'test',
         'click .delete button': 'delete',
         'click .finsh': 'finsh',
         'click .reset': 'reset'
@@ -41,8 +40,8 @@ let HubItemView = Backbone.View.extend({
             })
             //根据radio的值修改验证规则
             form.on(`radio`, function (data) {
-                
-                if(data.elem.dataset.nochange==='1'){
+
+                if (data.elem.dataset.nochange === '1') {
                     return
                 }
                 const cid = $(this).attr('name'),
@@ -54,9 +53,6 @@ let HubItemView = Backbone.View.extend({
                     "remote": ['mac', 'server', 'developer', 'password', 'location']
                 }
 
-                // const model = self.model().get(cid)
-                // model.set('verify',false)
-                // model.set('online',false)
 
                 let verifyElem = parent.find('*[lay-verify]')
                 verifyElem.removeAttr('lay-verify').addClass('layui-bg-gray layui-disabled')
@@ -176,9 +172,9 @@ let HubItemView = Backbone.View.extend({
                 for (let key in data) {
                     submodel.set(key, data[key])
                 }
-                const position = data[cid] === '0' ? false : true
+                const position = data[cid] === '0' ? 0 : 1
                 submodel.set('verify', true)
-                submodel.set('locationsys', position)
+                submodel.set('location', position)
                 return false;
             }.bind(this));
         }
@@ -219,7 +215,6 @@ let HubItemView = Backbone.View.extend({
             parent = $(`li[data-cid='${cid}']`)
         this.model().remove(this.model().get(cid))
         parent.remove()
-
     },
     finsh: function (e) {
         const collection = this.model()
@@ -233,7 +228,7 @@ let HubItemView = Backbone.View.extend({
                 let emptyMacName = [],
                     temp
                 collection.toJSON().forEach(item => {
-                    temp = _.pick(item, 'name', 'node', 'locationsys')
+                    temp = _.pick(item, 'name', 'node', 'location','cid')
                     devices.push(temp)
                     if (item.mac === '') {
                         emptyMacDevices.push(temp)
@@ -244,11 +239,13 @@ let HubItemView = Backbone.View.extend({
                 for (let item of devices) {
                     if (emptyMacName.indexOf(item.name) === -1) {
                         peripherals.push(item)
+                        this.model().get(item.cid).set(item)
                     }
                 }
                 allHubs.peripheralsVer = true
                 if (allHubs.peripheralsVer && allHubs.hubVer) {
                     layui.layer.closeAll()
+
                 } else {
                     layui.layer.msg('手环验证成功，请填写hub信息', {
                         icon: 1,
@@ -271,6 +268,7 @@ let HubItemView = Backbone.View.extend({
                 allHubs.length = 0
                 for (let item of allHub) {
                     allHubs.push(item)
+                    this.model().get(item.cid).set(item)
                 }
                 allHubs.hubVer = true
                 if (allHubs.peripheralsVer && allHubs.hubVer) {
@@ -282,15 +280,8 @@ let HubItemView = Backbone.View.extend({
                     });
                 }
                 console.log(allHubs)
-
-                // $('div.layui-layer-title span:not(.layui-layer-tabnow)').trigger('click')
-                // layui.layer.closeAll()
             }
-        }, 200)
-        // this.model().models.forEach(item=>{
-        //     this.model().test(item.toJSON())
-        // })
-
+        }.bind(this), 200)
     },
     reset: function (e) {
         // debugger

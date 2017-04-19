@@ -4,7 +4,7 @@ import running_static from 'publicDir/imgs/running_static.jpg'
 import './dashboard.css'
 function dashboardStr(data) {
     const str = `<li data-node='${data.node}'>
-					<h2>${data.userName}</h2>
+					<input type='text' class='userName' value='${data.userName}'></input>
 					${data.loc?'<p class="loc">位置：<span >'+data.loc+'</span></p>':''}
 					<p class="totalStep">累计步数 : <span >${data.totalStep}</span></p>
 					${data.say?"<input type = 'text' value='hello'><button class='send' data-node='"+data.node+"'>send</button>":''}

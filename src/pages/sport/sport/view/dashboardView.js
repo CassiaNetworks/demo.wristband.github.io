@@ -9,7 +9,7 @@ import {
     dashBoardItemColl
 } from '../models/dashboardmodel'
 
-import {hubs} from 'cp'
+import { hubs } from 'cp'
 
 import HW3300000001 from '../../../../public-resource/libs/peripherals/HW3300000001'
 
@@ -25,7 +25,7 @@ const DashboardView = Backbone.View.extend({
             type = target.dataset.type,
             str = $(target).prev().val(),
             node = target.dataset.node
-        HW3300000001.sendMsg(node,hubs,str)
+        HW3300000001.sendMsg(node, hubs, str)
 
 
     },
@@ -36,7 +36,7 @@ const DashboardView = Backbone.View.extend({
         this.cal = {}
         this.heartRate = {}
         this.step = {}
-        this.loc={}
+        this.loc = {}
 
 
         for (let item of this.model.toJSON()) {
@@ -56,7 +56,7 @@ const DashboardView = Backbone.View.extend({
     add: function (model) {
         const item = model.toJSON()
         this.$el.append(dashboardStr(model.toJSON()))
-       this.storeElem(item)
+        this.storeElem(item)
     },
     upgrade: function (model) {
         const item = model.toJSON()

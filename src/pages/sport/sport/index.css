@@ -374,3 +374,8 @@ p {
   position: relative;
   top: -88px;
 }
+
+.layui-layer-page .layui-layer-content {
+    position: relative;
+    /* overflow:auto; */
+}

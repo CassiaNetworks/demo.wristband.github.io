@@ -2,18 +2,20 @@ const hubConfig = require('configDir/hubConfig.json')
 const utils = require('publicDir/libs/utils/utils')
 const baseData = {
     method: hubConfig.info.method,
-    mac: 'CC:1B:E0:E0:26:F8',
-    ip: '192.168.1.103',
+    mac: 'CC:1B:E0:E0:00:54',
+    ip: '192.168.1.14',
     server: hubConfig.info.server,
     developer: hubConfig.info.developer,
     password: hubConfig.info.password,
     verify: false,
-    online: false
+    online: false,
+    location:''
 }
 const HubItemModel = Backbone.Model.extend({
     defaults: baseData,
     initialize: function () {
         this.set('cid', this.cid)
+        this.set('location', this.cid)
     }
 });
 

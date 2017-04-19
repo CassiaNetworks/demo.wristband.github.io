@@ -4,6 +4,16 @@ import {
     dashBoardItemColl
 } from '../../pages/sport/sport/models/dashboardmodel'
 
+const modelHandle = {
+    'HW330-0000001': {
+        scanDataHandle: HW3300000001.scanDataHandle
+
+    },
+    'HW-0000001': {
+        scanDataHandle: HW3300000001.scanDataHandle
+    }
+}
+
 const DEBUG = false
 const bg = (function () {
     if (DEBUG) {
@@ -29,9 +39,9 @@ const bg = (function () {
         log() {
 
         },
-        table() {},
-        time() {},
-        timeEnd() {}
+        table() { },
+        time() { },
+        timeEnd() { }
     }
 })()
 
@@ -40,9 +50,10 @@ let hubs = {
     timer: null,
     writeArr: {},
     scanDataHandle: {
-        'HW330-0000001': HW3300000001.scanDataHandle
+        // 'HW330-0000001': HW3300000001.scanDataHandle,
+        // 'HW-0000001': HW3300000001.scanDataHandle
     },
-    conut: 0,
+    onceInit: false,
     hubs: {}, //所有hub
     scanHubs: [], //正在扫描的hub
     availableHubs: [], //空闲的hub  没有连接
@@ -61,6 +72,27 @@ let hubs = {
     position: {
         node: [],
         name: []
+    },
+    destroy() {
+        hubs.scanHubs = [] //正在扫描的hub
+        hubs.availableHubs = [] //空闲的hub  没有连接
+        hubs.conningPers = [] //正在连接的设备
+        hubs.writeHubs = [] //正在写入的设备
+        hubs.locationData = {} //定位信息
+        hubs.connetedPeripherals = {} //所有连接的设备
+        for (let mac in hubs.hubs) {
+            if (hubs.hubs[mac]) {
+                hubs.close({ event: 'scan', mac: mac })
+                hubs.close({ event: 'notify', mac: mac })
+            }
+        }
+
+        hubs.off('oauth')
+        hubs.off('online')
+        hubs.off('scanData')
+        hubs.off('connByName')
+        hubs.off('conn')
+        hubs.hubs = {}
     },
     init(mac) {
         const __initEvent = function () {
@@ -107,10 +139,7 @@ let hubs = {
             })
 
         }
-        //保证_init函数只执行一次
-        if (Object.keys(this.hubs).length === 1) {
-            __initEvent.call(this)
-        }
+        __initEvent.call(this)
         this.oauth(mac)
         return this
     },
@@ -120,7 +149,10 @@ let hubs = {
     },
     add(o = {}) {
         const mac = o.mac
-
+        if (!this.onceInit) {
+            hubs.destroy()
+        }
+        hubs.onceInit = true
         function _add() {
             if (this.hubs[mac]) {
                 console.warn(`${mac} has existed`)
@@ -350,6 +382,7 @@ let hubs = {
             escapeTime: 'sortByRssi',
             silent: true
         }]
+        clearImmediate(this.interval.timer)
         this.interval.timer = setInterval(function () {
             this.__clearOldLoac()
             for (let mac in this.hubs) {
@@ -964,10 +997,11 @@ let peripherals = [],
 
 const startWork = function () {
     //连接相关
+    hubs.onceInit = false
     const target = {
-            name: [],
-            node: []
-        },
+        name: [],
+        node: []
+    },
         position = {
             name: [],
             node: []
@@ -980,15 +1014,19 @@ const startWork = function () {
         hubs.add(item).init(item.mac)
     }
     for (let item of peripherals) {
-        if (item.locationsys) {
-            if (item.mac)
+        if (item.location) {
+            if (item.mac) {
                 position.node.push(item.node)
+            }
             else if (item.name) {
                 position.name.push(item.name)
+                console.log(item.name)
+                hubs.scanDataHandle[item.name] = modelHandle[item.name].scanDataHandle
             }
         } else {
-            if (item.mac)
-                target.mac.push(item.mac)
+            if (item.node) {
+                target.node.push(item.mac)
+            }
             else if (item.name) {
                 target.name.push(item.name)
             }
