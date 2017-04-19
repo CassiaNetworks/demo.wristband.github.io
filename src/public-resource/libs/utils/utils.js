@@ -1,7 +1,5 @@
 import lang from '../../../pages/sport/sport/page'
-import {
-    hubs
-} from 'cp'
+
 exports.changeLang = function (jsonObj) {
     let _lang = jsonObj || lang
     $('[i18n]').each(function () {

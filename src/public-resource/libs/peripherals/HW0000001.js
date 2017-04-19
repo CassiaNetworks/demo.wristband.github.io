@@ -69,10 +69,10 @@ function sendMsgHandle(node, hubs, str) {
      * @param sequence
      */
     function setOfPackets(data, remainder, sequence) {
-        function getTimestamp() {
-            let date = new Date();
-            return wrapData(date.getHours()) + wrapData(date.getMinutes());
-        }
+        // function getTimestamp() {
+        //     let date = new Date();
+        //     return wrapData(date.getHours()) + wrapData(date.getMinutes());
+        // }
 
         if (sequence >= 0) {
             let x = 0b10000000 + sequence;
@@ -82,7 +82,7 @@ function sendMsgHandle(node, hubs, str) {
                 let content = data.slice(0, 10);
                 let contentLen = (remainder / 2 + 4).toString(16);
                 contentLen = contentLen.length < 2 ? '0' + contentLen : contentLen;
-                let packet = [packetHeader, identifier, getTotalLength(content.length, sequence).toString(16), getPacketSequence(), "02100201" + contentLen + "0103" + '0101', content + "", ];
+                let packet = [packetHeader, identifier, getTotalLength(content.length, sequence).toString(16), getPacketSequence(), "02100201" + contentLen + "0103" + '0101', content + ""];
                 checksum(packet);
                 remainder -= 10;
                 sequence += 1;
@@ -120,7 +120,7 @@ function sendMsgHandle(node, hubs, str) {
         let dataLength = data.length / 2;
         if (dataLength < 5) {
             let totalLen = 16 + dataLength;
-            let packet = ['ff00', totalLen.toString(16), '0b', getPacketSequence(), "02100201" + '0' + (dataLength + 4).toString(16) + "0103" + '0101', data + "", ];
+            let packet = ['ff00', totalLen.toString(16), '0b', getPacketSequence(), "02100201" + '0' + (dataLength + 4).toString(16) + "0103" + '0101', data + ""];
             checksum(packet);
             packets.push(packet);
         } else {
@@ -218,7 +218,7 @@ const HW0000001 = {
             return parseInt(str, 16)
         }
         const mac = o.mac,
-            chip = o.chip,
+            // chip = o.chip,
             node = o.data.bdaddrs[0].bdaddr,
             data = o.data.adData || o.data.scanData,
             manufacturer = data.slice(-20)

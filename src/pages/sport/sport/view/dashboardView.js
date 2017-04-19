@@ -22,7 +22,7 @@ const DashboardView = Backbone.View.extend({
     },
     send: function (e) {
         const target = e.target,
-            type = target.dataset.type,
+            // type = target.dataset.type,
             str = $(target).prev().val(),
             node = target.dataset.node
         HW3300000001.sendMsg(node, hubs, str)

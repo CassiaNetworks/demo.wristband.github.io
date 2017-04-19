@@ -261,7 +261,7 @@ let hubs = {
             // },
             context: this,
             dataType: 'json',
-            success: function (data) {
+            success: function () {
                 this.hubs[mac]._escapeTime.checkOnline = 0
                 this.hubs[mac].status.online = true
                 if (hubs.availableHubs.indexOf(mac) === -1)
@@ -1108,7 +1108,7 @@ const startWork = function () {
         }
 
     })
-    hubs.on('notify', function (data) {
+    hubs.on('notify', function () {
         // const node = data.id,
         //     name = _.findWhere(hubs.connetedPeripherals, {
         //         node: node

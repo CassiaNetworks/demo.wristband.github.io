@@ -283,7 +283,7 @@ let HubItemView = Backbone.View.extend({
             }
         }.bind(this), 200)
     },
-    reset: function (e) {
+    reset: function () {
         // debugger
     },
     render: function () {
