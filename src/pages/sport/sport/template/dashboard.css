@@ -25,3 +25,10 @@ li input {
     background: transparent;
     border: 0;
 }
+
+.model{
+    position: absolute;
+    bottom: 0;
+    color: #999;
+    left: 9%;
+}

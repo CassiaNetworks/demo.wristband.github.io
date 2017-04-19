@@ -1,5 +1,6 @@
 import Hub from 'publicDir/libs/hubs/hub'
 import HW3300000001 from 'publicDir/libs/peripherals/HW3300000001'
+import HW0000001 from 'publicDir/libs/peripherals/HW0000001'
 import {
     dashBoardItemColl
 } from '../../pages/sport/sport/models/dashboardmodel'
@@ -10,7 +11,7 @@ const modelHandle = {
 
     },
     'HW-0000001': {
-        scanDataHandle: HW3300000001.scanDataHandle
+        scanDataHandle: HW0000001.scanDataHandle
     }
 }
 
@@ -39,9 +40,9 @@ const bg = (function () {
         log() {
 
         },
-        table() { },
-        time() { },
-        timeEnd() { }
+        table() {},
+        time() {},
+        timeEnd() {}
     }
 })()
 
@@ -82,8 +83,14 @@ let hubs = {
         hubs.connetedPeripherals = {} //所有连接的设备
         for (let mac in hubs.hubs) {
             if (hubs.hubs[mac]) {
-                hubs.close({ event: 'scan', mac: mac })
-                hubs.close({ event: 'notify', mac: mac })
+                hubs.close({
+                    event: 'scan',
+                    mac: mac
+                })
+                hubs.close({
+                    event: 'notify',
+                    mac: mac
+                })
             }
         }
 
@@ -97,7 +104,7 @@ let hubs = {
     init(mac) {
         const __initEvent = function () {
             this.on('oauth', function (o) {
-                this.__changeServer(o.mac)
+
                 hubs.__checkOnline(o.mac)
             })
             this.on('online', function (o) {
@@ -140,12 +147,13 @@ let hubs = {
 
         }
         __initEvent.call(this)
+        this.__changeServer(mac)
         this.oauth(mac)
         return this
     },
     __changeServer(mac) {
         const info = this.hubs[mac].info
-        info.server = info.method === '1' ? info.server : info.ip
+        info.realserver = info.method === '1' ? info.server : info.ip
     },
     add(o = {}) {
         const mac = o.mac
@@ -153,6 +161,7 @@ let hubs = {
             hubs.destroy()
         }
         hubs.onceInit = true
+
         function _add() {
             if (this.hubs[mac]) {
                 console.warn(`${mac} has existed`)
@@ -202,7 +211,7 @@ let hubs = {
         }
         $.ajax({
             type: 'post',
-            url: hub.info.server + '/oauth2/token',
+            url: hub.info.realserver + '/oauth2/token',
             headers: {
                 'Authorization': 'Basic ' + btoa(hub.info.developer + ':' + hub.info.password)
             },
@@ -241,7 +250,7 @@ let hubs = {
         if (hub.info.method === '0') {
             _url = hub.info.ip + `/cassia/info/`
         } else {
-            _url = hub.info.server + `/cassia/hubs/${mac}` + '?&access_token=' + hub.info.access_token
+            _url = hub.info.realserver + `/cassia/hubs/${mac}` + '?&access_token=' + hub.info.access_token
         }
 
         $.ajax({
@@ -290,7 +299,7 @@ let hubs = {
         if (!this.__online(mac)) {
             return
         }
-        this.__es(hub, 'scan', hub.info.server + '/gap/nodes/?event=1&mac=' + mac + '&chip=' + chip + '&access_token=' + hub.info.access_token,
+        this.__es(hub, 'scan', hub.info.realserver + '/gap/nodes/?event=1&mac=' + mac + '&chip=' + chip + '&access_token=' + hub.info.access_token,
             function (event) {
                 if (hubs.scanHubs.indexOf(mac) === -1) {
                     hubs.scanHubs.push(mac)
@@ -313,7 +322,7 @@ let hubs = {
             return this
         }
         if (!hub.output.notify) {
-            this.__es(hub, 'notify', hub.info.server + '/gatt/nodes/?event=1&mac=' + hub.info.mac + '&access_token=' + hub.info.access_token,
+            this.__es(hub, 'notify', hub.info.realserver + '/gatt/nodes/?event=1&mac=' + hub.info.mac + '&access_token=' + hub.info.access_token,
                 function (event) {
                     if (event.data.match(/keep-alive/)) {
                         return
@@ -706,13 +715,13 @@ let hubs = {
             }
 
             //triggle 发现要链接的name事件
-            if (realName) {
-                hubs.trigger('autoCon', {
-                    node: node,
-                    name: realName,
-                    mac: mac
-                })
-            }
+            // if (realName) {
+            //     hubs.trigger('autoCon', {
+            //         node: node,
+            //         name: realName,
+            //         mac: mac
+            //     })
+            // }
 
             //更新hub.scanData.sort.rssi值
             const _rssi = hub.scanData.sort.rssi
@@ -780,10 +789,13 @@ let hubs = {
             node = o.node,
             type = o.type,
             name = o.name
+        if (this.availableHubs.indexOf(mac) === -1)
+            return
         this.__conningSyncInfoData(o)
         $.ajax({
             type: 'post',
-            url: hub.info.server + '/gap/nodes/' + o.node + '/connection?mac=' + o.mac + '&access_token=' + hub.info.access_token,
+            contentType: 'application/x-www-form-urlencoded',
+            url: hub.info.realserver + '/gap/nodes/' + o.node + '/connection?mac=' + o.mac + '&access_token=' + hub.info.access_token,
             // headers: hub.info.method === 0 ? '' : {
             //     'Authorization': hub.info.authorization
             // },
@@ -830,7 +842,7 @@ let hubs = {
 
         $.ajax({
             type: 'delete',
-            url: hub.info.server + '/gap/nodes/' + o.node + '/connection?mac=' + o.hub + '&access_token=' + hub.access_token,
+            url: hub.info.realserver + '/gap/nodes/' + o.node + '/connection?mac=' + mac + '&access_token=' + hub.info.access_token,
             // headers: hub.info.method === 0 ? '' : {
             //     'Authorization': hub.info.authorization
             // },
@@ -869,7 +881,7 @@ let hubs = {
         }
         $.ajax({
             type: 'get',
-            url: hub.info.server + '/gap/nodes/?connection_state=connected&mac=' + mac + '&access_token=' + hub.info.access_token,
+            url: hub.info.realserver + '/gap/nodes/?connection_state=connected&mac=' + mac + '&access_token=' + hub.info.access_token,
             // headers: hub.info.method === 0 ? '' : {
             //     'Authorization': hub.info.authorization
             // },
@@ -934,12 +946,11 @@ let hubs = {
         if (!this.__online(mac) || !this.__online(node)) {
             return
         }
-
         $.ajax({
             type: 'get',
-            cache: false,
+            // cache: false,
             context: this,
-            url: hub.info.server + '/gatt/nodes/' + node + '/handle/' + handle + '/value/' + value + '/?mac=' + mac + '&access_token=' + hubs.access_token,
+            url: hub.info.realserver + '/gatt/nodes/' + node + '/handle/' + handle + '/value/' + value + '/?mac=' + mac + '&access_token=' + hub.info.access_token || '',
             // headers: hub.info.method === 0 ? '' : {
             //     'Authorization': hub.info.authorization
             // },
@@ -972,10 +983,10 @@ let hubs = {
 
         $.ajax({
             type: 'get',
-            url: hub.info.server + '/gatt/nodes/' + node + '/handle/' + handle + '/value/?mac=' + mac,
-            headers: hub.info.method === 0 ? '' : {
-                'Authorization': hub.info.authorization
-            },
+            url: hub.info.realserver + '/gatt/nodes/' + node + '/handle/' + handle + '/value/?mac=' + mac + '&access_token' + hub.info.access_token,
+            // headers: hub.info.method === 0 ? '' : {
+            //     'Authorization': hub.info.authorization
+            // },
             success: function (data) {
                 this.trigger('read', {
                     mac,
@@ -999,9 +1010,9 @@ const startWork = function () {
     //连接相关
     hubs.onceInit = false
     const target = {
-        name: [],
-        node: []
-    },
+            name: [],
+            node: []
+        },
         position = {
             name: [],
             node: []
@@ -1017,17 +1028,14 @@ const startWork = function () {
         if (item.location) {
             if (item.mac) {
                 position.node.push(item.node)
-            }
-            else if (item.name) {
+            } else if (item.name) {
                 position.name.push(item.name)
-                console.log(item.name)
                 hubs.scanDataHandle[item.name] = modelHandle[item.name].scanDataHandle
             }
         } else {
             if (item.node) {
                 target.node.push(item.mac)
-            }
-            else if (item.name) {
+            } else if (item.name) {
                 target.name.push(item.name)
             }
         }
@@ -1037,29 +1045,68 @@ const startWork = function () {
     hubs.off('broadcastData')
     hubs.off('notify')
     hubs.on('broadcastData', function (o) {
-        const model = dashBoardItemColl.get(o.node)
-        if (model) {
-            model.set('heartRate', o.heartRate)
-            if (model.get('baseStep') !== o.step) {
-                model.set('totalStep', o.step - model.get('baseStep'))
-            }
-            model.set('step', o.step - model.get('baseCircleStep'))
-            model.set('loc', hubs.hubs[hubs.locationData[o.node].mac].info.location)
-            model.set('cal', ((model.get('step') * .03918)).toFixed(2))
-        } else {
-            dashBoardItemColl.add({
-                userName: o.node.slice(-5),
-                baseStep: o.step,
-                baseCircleStep: o.step,
-                totalStep: 0,
-                cal: 0,
-                loc: hubs.hubs[hubs.locationData[o.node].mac].info.location,
-                heartRate: o.heartRate,
-                step: 0,
-                say: true,
-                node: o.node
-            })
+        const model = dashBoardItemColl.get(o.node),
+            name = o.name
+        switch (name) {
+            case 'HW330-0000001':
+                {
+                    if (model) {
+                        model.set('heartRate', o.heartRate)
+                        if (model.get('baseStep') !== o.step) {
+                            model.set('totalStep', o.step - model.get('baseStep'))
+                        }
+                        model.set('step', o.step - model.get('baseCircleStep'))
+                        model.set('loc', hubs.hubs[hubs.locationData[o.node].mac].info.location)
+                        model.set('cal', ((model.get('step') * .03918)).toFixed(2))
+                    } else {
+                        dashBoardItemColl.add({
+                            userName: o.node.slice(-5),
+                            baseStep: o.step,
+                            baseCircleStep: o.step,
+                            totalStep: 0,
+                            cal: o.cal,
+                            loc: hubs.hubs[hubs.locationData[o.node].mac].info.location,
+                            heartRate: o.heartRate,
+                            step: 0,
+                            say: o.say,
+                            node: o.node,
+                            name: o.name
+                        })
+                    }
+                    break
+                }
+            case 'HW-0000001':
+                {
+                    {
+                        if (model) {
+                            model.set('heartRate', o.heartRate)
+                            if (model.get('baseStep') !== o.step) {
+                                model.set('totalStep', o.step - model.get('baseStep'))
+                            }
+                            model.set('step', o.step - model.get('baseCircleStep'))
+                            model.set('loc', hubs.hubs[hubs.locationData[o.node].mac].info.location)
+                            model.set('cal', o.cal)
+                        } else {
+                            dashBoardItemColl.add({
+                                userName: o.node.slice(-5),
+                                baseStep: o.step,
+                                baseCircleStep: o.step,
+                                totalStep: 0,
+                                cal: o.cal,
+                                loc: hubs.hubs[hubs.locationData[o.node].mac].info.location,
+                                heartRate: o.heartRate,
+                                step: 0,
+                                say: o.say,
+                                node: o.node,
+                                name: o.name
+                            })
+                        }
+                        break
+                    }
+                }
+
         }
+
     })
     hubs.on('notify', function (data) {
         // const node = data.id,

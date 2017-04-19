@@ -7,7 +7,7 @@ function dashboardStr(data) {
 					<input type='text' class='userName' value='${data.userName}'></input>
 					${data.loc?'<p class="loc">位置：<span >'+data.loc+'</span></p>':''}
 					<p class="totalStep">累计步数 : <span >${data.totalStep}</span></p>
-					${data.say?"<input type = 'text' value='hello'><button class='send' data-node='"+data.node+"'>send</button>":''}
+					${data.say?"<input type = 'text' value='你好'><button class='send' data-node='"+data.node+"'>send</button>":''}
 					<div class="yellow">
 						<img src=${fire_static} alt="icon">
 						<p><span>${data.cal}</span>千卡</p>
@@ -20,7 +20,11 @@ function dashboardStr(data) {
 						<img src=${running_static} alt="icon">
 						<a href="javascript:;" data-node='${data.node}'></a>
 						<p><span>${data.step}</span>步</p>
-					</div></li>`
+					</div>
+					<div class = 'model'>
+						<p>型号:${data.name}<p>
+					</div>
+					</li>`
     return str
 }
 

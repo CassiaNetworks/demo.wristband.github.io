@@ -6,7 +6,7 @@ const dashBoardItemModel = Backbone.Model.extend({
         heartRate: '',
         node: '',
         step: '',
-        say:''
+        say:true
     },
     idAttribute:'node',
     initialize:function(){

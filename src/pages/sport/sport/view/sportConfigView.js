@@ -190,13 +190,13 @@ let HubItemView = Backbone.View.extend({
         }
     },
     addhub: function (e) {
-        if ($(e.target).attr('alt') === 'add') {
-            const models = this.model().models,
-                length = this.model().length,
-                cid = models[length - 1].cid,
-                $prevTest = $(`.test button[data-cid='${cid}']`)
+        const length = this.model().length
+        if ($(e.target).attr('alt') === 'add' && length) {
+            const models = this.model().models
+            let cid, $prevTest
+            cid = models[length - 1].cid
+            $prevTest = $(`.test button[data-cid='${cid}']`)
             $prevTest.trigger('click')
-
             if (!models[length - 1].get('verify'))
                 return
         }
@@ -228,7 +228,7 @@ let HubItemView = Backbone.View.extend({
                 let emptyMacName = [],
                     temp
                 collection.toJSON().forEach(item => {
-                    temp = _.pick(item, 'name', 'node', 'location','cid')
+                    temp = _.pick(item, 'name', 'node', 'location', 'cid')
                     devices.push(temp)
                     if (item.mac === '') {
                         emptyMacDevices.push(temp)

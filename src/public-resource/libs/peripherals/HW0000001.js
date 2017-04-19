@@ -181,7 +181,7 @@ function sendMsgHandle(node, hubs, str) {
         for (let i = 0; i < packets.length; i++) {
             let eventName = 'write'
             if (i === packets.length - 1) {
-                eventName = 'finishHW3300000001'
+                eventName = 'finish'
             }
             hubs.write({
                 node: node,
@@ -192,20 +192,18 @@ function sendMsgHandle(node, hubs, str) {
             });
             console.log(packets[i].join(''))
         }
-        hubs.once('finishHW3300000001', function (o) {
-            setTimeout(function () {
-                hubs.disconn(o)
-            }.bind(this), 500)
-        })
+        // hubs.once('finish', function (o) {
+        //     hubs.disconn(o)
+        // })
         packetSeq++;
         packets = [];
     }
     if (hubs.connetedPeripherals[node]) {
         sendMsg(node, hubs, str)
     } else {
-        // hubs.disconn(hubs.locationData[node])
+        hubs.disconn(hubs.locationData[node])
         hubs.__conn(hubs.locationData[node])
-        hubs.once('conn', function () {
+        hubs.on('conn', function () {
             sendMsg(node, hubs, str)
         })
     }
@@ -214,7 +212,7 @@ function sendMsgHandle(node, hubs, str) {
 
 
 
-const HW3300000001 = {
+const HW0000001 = {
     scanDataHandle: function (o) {
         function toDEC(str) {
             return parseInt(str, 16)
@@ -223,24 +221,25 @@ const HW3300000001 = {
             chip = o.chip,
             node = o.data.bdaddrs[0].bdaddr,
             data = o.data.adData || o.data.scanData,
-            manufacturer = data.slice(48)
+            manufacturer = data.slice(-20)
 
         let battery = toDEC(manufacturer.slice(4, 6)),
             heartRate = toDEC(manufacturer.slice(6, 8)),
-            step = toDEC(manufacturer.slice(8))
+            step = toDEC(manufacturer.slice(8,14)),
+            cal = toDEC(manufacturer.slice(14))
         return {
             mac,
             node,
-            name: 'HW330-0000001',
+            name: 'HW-0000001',
             battery,
             heartRate,
             step,
-            cal: 0,
-            say: true
+            cal,
+            say:true
         }
     },
     sendMsg: sendMsgHandle
 }
 
 
-export default HW3300000001
+export default HW0000001
