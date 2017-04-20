@@ -59,7 +59,7 @@ const DashboardView = Backbone.View.extend({
                         this.dashBoard[item.node].stop(true, false).css('opacity', 1)
                         break;
                     }
-                case -16:
+                case -60:
                     {
                         this.dashBoard[item.node].stop(true, false).css('opacity', .2)
                         this.model.get(item.node).set('loc','未知')

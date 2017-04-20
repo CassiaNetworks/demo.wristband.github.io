@@ -1,7 +1,8 @@
-function sendMsgHandle(node, hubs, str) {
-    let packetSeq = 1;
-    let packets = [];
+let packetSeq = 5
 
+function sendMsgHandle(node, hubs, str) {
+    let packets = [];
+    packetSeq++
     function checksum(data) {
         let sum = 0;
         for (let i = 0; i < data.length; i++) {
@@ -120,7 +121,7 @@ function sendMsgHandle(node, hubs, str) {
         let dataLength = data.length / 2;
         if (dataLength < 5) {
             let totalLen = 16 + dataLength;
-            let packet = ['ff00', totalLen.toString(16), '0b', getPacketSequence(), "02100201" + '0' + (dataLength + 4).toString(16) + "0103" + '0101', data + "" ];
+            let packet = ['ff00', totalLen.toString(16), '0b', getPacketSequence(), "02100201" + '0' + (dataLength + 4).toString(16) + "0103" + '0101', data + ""];
             checksum(packet);
             packets.push(packet);
         } else {
@@ -195,7 +196,7 @@ function sendMsgHandle(node, hubs, str) {
         hubs.once('finishHW3300000001', function (o) {
             setTimeout(function () {
                 hubs.disconn(o)
-            }.bind(this), 500)
+            }.bind(this), 3000)
         })
         packetSeq++;
         packets = [];
@@ -206,6 +207,7 @@ function sendMsgHandle(node, hubs, str) {
         // hubs.disconn(hubs.locationData[node])
         hubs.__conn(hubs.locationData[node])
         hubs.once('conn', function () {
+            // sendMsg(node, hubs, str,'finishHW33000000011')
             sendMsg(node, hubs, str)
         })
     }
@@ -236,7 +238,7 @@ const HW3300000001 = {
             heartRate,
             step,
             cal: 0,
-            say: false
+            say: true
         }
     },
     sendMsg: sendMsgHandle

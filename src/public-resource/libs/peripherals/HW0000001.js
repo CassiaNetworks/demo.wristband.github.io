@@ -1,7 +1,8 @@
-function sendMsgHandle(node, hubs, str) {
-    let packetSeq = 1;
-    let packets = [];
+let packetSeq = 5;
 
+function sendMsgHandle(node, hubs, str) {
+    let packets = [];
+    packetSeq++
     function checksum(data) {
         let sum = 0;
         for (let i = 0; i < data.length; i++) {
@@ -192,9 +193,11 @@ function sendMsgHandle(node, hubs, str) {
             });
             console.log(packets[i].join(''))
         }
-        // hubs.once('finish', function (o) {
-        //     hubs.disconn(o)
-        // })
+        hubs.once('finishHW3300000001', function (o) {
+            setTimeout(function () {
+                hubs.disconn(o)
+            }.bind(this), 3000)
+        })
         packetSeq++;
         packets = [];
     }
@@ -203,7 +206,7 @@ function sendMsgHandle(node, hubs, str) {
     } else {
         hubs.disconn(hubs.locationData[node])
         hubs.__conn(hubs.locationData[node])
-        hubs.on('conn', function () {
+        hubs.once('conn', function () {
             sendMsg(node, hubs, str)
         })
     }
@@ -225,8 +228,8 @@ const HW0000001 = {
 
         let battery = toDEC(manufacturer.slice(4, 6)),
             heartRate = toDEC(manufacturer.slice(6, 8)),
-            step = toDEC(manufacturer.slice(8,14))
-            // cal = toDEC(manufacturer.slice(14))
+            step = toDEC(manufacturer.slice(8, 14))
+        // cal = toDEC(manufacturer.slice(14))
         return {
             mac,
             node,
@@ -234,8 +237,8 @@ const HW0000001 = {
             battery,
             heartRate,
             step,
-            cal:0,
-            say:false
+            cal: 0,
+            say: true
         }
     },
     sendMsg: sendMsgHandle
