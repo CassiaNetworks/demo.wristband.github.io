@@ -225,8 +225,8 @@ const HW0000001 = {
 
         let battery = toDEC(manufacturer.slice(4, 6)),
             heartRate = toDEC(manufacturer.slice(6, 8)),
-            step = toDEC(manufacturer.slice(8,14)),
-            cal = toDEC(manufacturer.slice(14))
+            step = toDEC(manufacturer.slice(8,14))
+            // cal = toDEC(manufacturer.slice(14))
         return {
             mac,
             node,
@@ -234,8 +234,8 @@ const HW0000001 = {
             battery,
             heartRate,
             step,
-            cal,
-            say:true
+            cal:0,
+            say:false
         }
     },
     sendMsg: sendMsgHandle

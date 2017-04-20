@@ -236,7 +236,7 @@ const HW3300000001 = {
             heartRate,
             step,
             cal: 0,
-            say: true
+            say: false
         }
     },
     sendMsg: sendMsgHandle

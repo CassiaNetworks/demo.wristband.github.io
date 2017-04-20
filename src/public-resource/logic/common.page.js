@@ -1077,33 +1077,60 @@ const startWork = function () {
                 }
             case 'HW-0000001':
                 {
-                    {
-                        if (model) {
-                            model.set('heartRate', o.heartRate)
-                            if (model.get('baseStep') !== o.step) {
-                                model.set('totalStep', o.step - model.get('baseStep'))
-                            }
-                            model.set('step', o.step - model.get('baseCircleStep'))
-                            model.set('loc', hubs.hubs[hubs.locationData[o.node].mac].info.location)
-                            model.set('cal', o.cal)
-                        } else {
-                            dashBoardItemColl.add({
-                                userName: o.node.slice(-5),
-                                baseStep: o.step,
-                                baseCircleStep: o.step,
-                                totalStep: 0,
-                                cal: o.cal,
-                                loc: hubs.hubs[hubs.locationData[o.node].mac].info.location,
-                                heartRate: o.heartRate,
-                                step: 0,
-                                say: o.say,
-                                node: o.node,
-                                name: o.name
-                            })
+                    if (model) {
+                        model.set('heartRate', o.heartRate)
+                        if (model.get('baseStep') !== o.step) {
+                            model.set('totalStep', o.step - model.get('baseStep'))
                         }
-                        break
+                        model.set('step', o.step - model.get('baseCircleStep'))
+                        model.set('loc', hubs.hubs[hubs.locationData[o.node].mac].info.location)
+                        model.set('cal', ((model.get('step') * .03918)).toFixed(2))
+                    } else {
+                        dashBoardItemColl.add({
+                            userName: o.node.slice(-5),
+                            baseStep: o.step,
+                            baseCircleStep: o.step,
+                            totalStep: 0,
+                            cal: o.cal,
+                            loc: hubs.hubs[hubs.locationData[o.node].mac].info.location,
+                            heartRate: o.heartRate,
+                            step: 0,
+                            say: o.say,
+                            node: o.node,
+                            name: o.name
+                        })
                     }
+                    break
                 }
+
+
+                // {
+                //     if (model) {
+                //         model.set('heartRate', o.heartRate)
+                //         if (model.get('baseStep') !== o.step) {
+                //             model.set('totalStep', o.step - model.get('baseStep'))
+                //         }
+                //         model.set('step', o.step - model.get('baseCircleStep'))
+                //         model.set('loc', hubs.hubs[hubs.locationData[o.node].mac].info.location)
+                //         model.set('cal', o.cal)
+                //     } else {
+                //         dashBoardItemColl.add({
+                //             userName: o.node.slice(-5),
+                //             baseStep: o.step,
+                //             baseCircleStep: o.step,
+                //             totalStep: 0,
+                //             cal: o.cal,
+                //             loc: hubs.hubs[hubs.locationData[o.node].mac].info.location,
+                //             heartRate: o.heartRate,
+                //             step: 0,
+                //             say: o.say,
+                //             node: o.node,
+                //             name: o.name
+                //         })
+                //     }
+                //     break
+                // }
+
 
         }
 
