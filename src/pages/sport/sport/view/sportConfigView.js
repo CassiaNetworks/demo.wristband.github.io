@@ -226,15 +226,40 @@ let HubItemView = Backbone.View.extend({
                 let devices = []
                 let emptyMacDevices = []
                 let emptyMacName = [],
-                    temp
+                    temp, repeat = false
+
+                if (collection.toJSON().length === 0) {
+                    layui.layer.msg('请添加手环！！', {
+                        icon: 2,
+                        time: 1000
+                    });
+                    return
+                }
+
                 collection.toJSON().forEach(item => {
                     temp = _.pick(item, 'name', 'node', 'location', 'cid')
+                    if (_.findWhere(devices, {
+                            name: item.name
+                        })) {
+                        repeat = 'name'
+                        return
+                    }
                     devices.push(temp)
                     if (item.mac === '') {
                         emptyMacDevices.push(temp)
                         emptyMacName.push(item.name)
                     }
                 })
+
+                if (repeat === 'name') {
+                    layui.layer.msg('手环型号不能重复！！', {
+                        icon: 2,
+                        time: 1000
+                    });
+                    return
+                }
+
+
                 Array.prototype.push.apply(peripherals, emptyMacDevices)
                 for (let item of devices) {
                     if (emptyMacName.indexOf(item.name) === -1) {
@@ -263,14 +288,51 @@ let HubItemView = Backbone.View.extend({
             const verify = collection.pluck('verify')
             const online = collection.pluck('online'),
                 allHub = collection.toJSON()
+
+            //所有hub通过在线
             if (verify.indexOf(false) === -1 && online.indexOf(false) === -1) {
                 clearInterval(hubs.timer)
                 allHubs.length = 0
+                let repeat = false
+                if (allHub.length === 0) {
+                    layui.layer.msg('请添加hub！！', {
+                        icon: 2,
+                        time: 1000
+                    })
+                    return
+                }
                 for (let item of allHub) {
+                    if (_.findWhere(allHubs, {
+                            mac: item.mac
+                        })) {
+                        repeat = 'mac'
+                        break
+                    }
+                    if (_.findWhere(allHubs, {
+                            method: '0',
+                            ip: item.ip
+                        })) {
+                        repeat = 'ip'
+                        break
+                    }
                     allHubs.push(item)
                     this.model().get(item.cid).set(item)
                 }
                 allHubs.hubVer = true
+                if (repeat === 'mac') {
+                    layui.layer.msg('重复添加hub！！', {
+                        icon: 2,
+                        time: 1000
+                    })
+                    return
+                }
+                if (repeat === 'ip') {
+                    layui.layer.msg('hub IP 重复！！', {
+                        icon: 2,
+                        time: 1000
+                    })
+                    return
+                }
                 if (allHubs.peripheralsVer && allHubs.hubVer) {
                     layui.layer.closeAll()
                 } else {

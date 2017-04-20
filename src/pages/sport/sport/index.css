@@ -280,28 +280,36 @@ p {
 .config-tip {
   display: flex;
   flex-wrap: wrap;
-  justify-content:center;
-  padding:0 20px;
+  justify-content: center;
+  padding: 0 20px;
 }
 
-.config-tip .layui-bg-gray{
+.config-tip .layui-bg-gray {
   background-color: #eee;
 }
-.config-tip .hub-item{
+
+.config-tip .hub-item {
   margin: 0 auto;
 }
-.config-tip .last-li{
-  width:100%;
+
+.config-tip .last-li {
+  width: 100%;
 }
-.config-tip .addhub img {
+
+.config-tip-peripheral.config-tip .addhub img {
+  width: 309px;
+  height: 127px;
+}
+
+.config-tip-hub .addhub img {
+  height: 369px;
   width: 301px;
-  height: 301px;
 }
 
 .config-tip .hub-item .test button,
 .config-tip .hub-item .delete button {
   margin: 0 0 0 10px;
-  width:66px;
+  width: 66px;
 }
 
 .config-tip .hub-item .test i {
@@ -376,6 +384,6 @@ p {
 }
 
 .layui-layer-page .layui-layer-content {
-    position: relative;
-    /* overflow:auto; */
+  position: relative;
+  /* overflow:auto; */
 }

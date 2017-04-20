@@ -20,7 +20,7 @@ module.exports.liItem = function (data) {
     return (` <li class="hub-item layui-form" data-cid=${data.cid} >
                             <div class="layui-form-item">
                                 <div class="layui-inline">
-                                    <label class="layui-form-label">Name</label>
+                                    <label class="layui-form-label">Model</label>
                                     <div class="layui-input-inline">
                                         <select name="name"  ${data.cid} lay-verify="required" lay-search="">
                                             ${optionsStr}
@@ -29,7 +29,7 @@ module.exports.liItem = function (data) {
                                     </div>
                             
                             </div>
-                            <div class="layui-form-item">
+                            <div class="layui-form-item layui-hide">
                                 <label class="layui-form-label">Mac</label>
                                 <div class="layui-input-inline">
                                     <input type="text" ${data.cid} name="node" lay-verify="perMac" placeholder="CC:1B:E0:E0:1B:04" value='${data.node}'  class="layui-input">

@@ -44,7 +44,6 @@ const DashboardView = Backbone.View.extend({
 
         for (let item of this.model.toJSON()) {
             this.storeElem(item)
-            // console.log(hubs.loca)
         }
         setInterval(this.checkTime.bind(this), 1000)
         this.listenTo(this.model, 'add', this.add)
@@ -63,13 +62,12 @@ const DashboardView = Backbone.View.extend({
                 case -16:
                     {
                         this.dashBoard[item.node].stop(true, false).css('opacity', .2)
+                        this.model.get(item.node).set('loc','未知')
+                        // this.loc[item.node].html('未知')
                         break;
                     }
             }
         }
-    },
-    changeOpacity: function (node) {
-        this.dashBoard[node].css('opacity', '1')
     },
     resetStep: function (e) {
         const node = e.target.dataset.node,
