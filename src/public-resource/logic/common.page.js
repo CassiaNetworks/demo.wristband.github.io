@@ -434,9 +434,9 @@ let hubs = {
     __clearOldLoac() {
         for (let node in this.locationData) {
             this.locationData[node] && this.locationData[node].life--;
-            if (this.locationData[node] && this.locationData[node].life === 0) {
-                this.locationData[node] = null
-            }
+            // if (this.locationData[node] && this.locationData[node].life === 0) {
+            //     this.locationData[node] = null
+            // }
         }
     },
     __hubAvailable(mac) {

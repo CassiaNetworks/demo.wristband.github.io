@@ -41,6 +41,7 @@ const DashboardView = Backbone.View.extend({
 
         for (let item of this.model.toJSON()) {
             this.storeElem(item)
+            // console.log(hubs.loca)
         }
         this.listenTo(this.model, 'add', this.add)
         this.listenTo(this.model, 'change', this.upgrade)
