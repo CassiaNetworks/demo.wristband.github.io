@@ -1,7 +1,7 @@
 var dirVars = require('../base/dir-vars.config.js');
 
 module.exports = {
-  contentBase:  './',
+  contentBase:  './build',
   host: 'localhost',
   port: 8088, // 默认8080
   inline: true, // 可以监控js变化

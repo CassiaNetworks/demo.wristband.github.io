@@ -9,7 +9,9 @@ import {
     dashBoardItemColl
 } from '../models/dashboardmodel'
 
-import { hubs } from 'cp'
+import {
+    hubs
+} from 'cp'
 
 import HW3300000001 from '../../../../public-resource/libs/peripherals/HW3300000001'
 
@@ -37,14 +39,37 @@ const DashboardView = Backbone.View.extend({
         this.heartRate = {}
         this.step = {}
         this.loc = {}
+        this.dashBoard = {}
 
 
         for (let item of this.model.toJSON()) {
             this.storeElem(item)
             // console.log(hubs.loca)
         }
+        setInterval(this.checkTime.bind(this), 1000)
         this.listenTo(this.model, 'add', this.add)
         this.listenTo(this.model, 'change', this.upgrade)
+    },
+    checkTime() {
+        const modelList = this.model.toJSON()
+        for (let item of modelList) {
+            const life = hubs.locationData[item.node].life
+            switch (life) {
+                case 4:
+                    {
+                        this.dashBoard[item.node].stop(true, false).css('opacity', 1)
+                        break;
+                    }
+                case -16:
+                    {
+                        this.dashBoard[item.node].stop(true, false).css('opacity', .2)
+                        break;
+                    }
+            }
+        }
+    },
+    changeOpacity: function (node) {
+        this.dashBoard[node].css('opacity', '1')
     },
     resetStep: function (e) {
         const node = e.target.dataset.node,
@@ -74,6 +99,7 @@ const DashboardView = Backbone.View.extend({
         this.heartRate[item.node] = this.$el.find(`li[data-node='${item.node}'] .red p span`)
         this.step[item.node] = this.$el.find(`li[data-node='${item.node}'] .blue p span`)
         this.loc[item.node] = this.$el.find(`li[data-node='${item.node}'] .loc span`)
+        this.dashBoard[item.node] = this.$el.find(`li[data-node='${item.node}']`)
     },
     render: function () {
         const coll = this.model.toJSON()
