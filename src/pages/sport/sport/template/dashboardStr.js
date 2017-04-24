@@ -7,7 +7,7 @@ function dashboardStr(data) {
 					<input type='text' class='userName' value='${data.userName}'></input>
 					${data.loc?'<p class="loc">位置：<span >'+data.loc+'</span></p>':''}
 					<p class="totalStep">累计步数 : <span >${data.totalStep}</span></p>
-					${data.say?"<input type = 'text' value='你好'><button class='send' data-node='"+data.node+"'>send</button>":''}
+					${data.say?"<input type = 'text' value='你好'><button class='send layui-btn layui-btn-warm layui-btn-mini' data-node='"+data.node+"'>send</button>":''}
 					<div class="yellow">
 						<img src=${fire_static} alt="icon">
 						<p><span>${data.cal}</span>千卡</p>
