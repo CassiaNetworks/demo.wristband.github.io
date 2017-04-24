@@ -43,7 +43,7 @@ module.exports = {
         {
             test: /\.ejs$/,
             include: dirVars.srcRootDir,
-            loader: 'ejs-loader',
+            loader: 'ejs-loader'
         },
         {
             // 图片加载器，雷同file-loader，更适合图片，可以将较小的图片转成base64，减少http请求
@@ -54,8 +54,8 @@ module.exports = {
             loader: 'url-loader',
             options: {
                 limit: 8192,
-                name: './static/imgs/[hash].[ext]',
-            },
+                name: './static/imgs/[hash].[ext]'
+            }
         },
         {
             // 专供bootstrap方案使用的，忽略bootstrap自带的字体文件
