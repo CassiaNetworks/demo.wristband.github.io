@@ -7,7 +7,7 @@ module.exports = {
   inline: true, // 可以监控js变化
   hot: true, // 热启动
   compress: true,
-  watchContentBase: true
-  // publicPath:'./build'
+  watchContentBase: true,
+  publicPath:'/wristbandDemo/build/'
 };
 // console.log('*******',module.export.contentBase)
